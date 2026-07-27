@@ -52,7 +52,7 @@ function AppleIcon() {
   );
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/dashboard';
@@ -677,5 +677,15 @@ export default function LoginPage() {
         </Box>
       </Box>
     </GuestGuard>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <React.Suspense fallback={
+      <Box sx={{ minHeight: '100vh', display: 'flex', width: '100%', backgroundColor: '#FAF9FE' }} />
+    }>
+      <LoginContent />
+    </React.Suspense>
   );
 }
