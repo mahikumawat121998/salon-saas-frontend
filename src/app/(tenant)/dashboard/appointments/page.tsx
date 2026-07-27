@@ -107,7 +107,7 @@ export default function AppointmentsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       setIsAddModalOpen(false);
-      setFormData({ customerId: '', staffId: '', serviceId: '', startAt: '', source: 'ADMIN' });
+      setFormData({ customerId: '', staffId: '', serviceId: '', startAt: '', source: 'ADMIN', customerNotes: '' });
     },
   });
 
