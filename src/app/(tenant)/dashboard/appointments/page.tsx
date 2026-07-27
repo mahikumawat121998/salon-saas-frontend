@@ -389,7 +389,7 @@ export default function AppointmentsPage() {
                   ) : appointments.map((apt) => {
                     const statusProps = getStatusChipProps(apt.status);
                     const startTime = new Date(apt.startAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    
+
                     return (
                       <TableRow
                         key={apt.id}
@@ -518,9 +518,9 @@ export default function AppointmentsPage() {
           {/* ========================================================================= */}
           {/* 1. ADD NEW APPOINTMENT MODAL */}
           {/* ========================================================================= */}
-          <AddAppointmentModal 
-            open={isAddModalOpen} 
-            onClose={() => setIsAddModalOpen(false)} 
+          <AddAppointmentModal
+            open={isAddModalOpen}
+            onClose={() => setIsAddModalOpen(false)}
           />
 
           {/* ========================================================================= */}
@@ -652,8 +652,8 @@ export default function AppointmentsPage() {
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="caption" color="text.secondary">Status</Typography>
-                        <Select 
-                          size="small" 
+                        <Select
+                          size="small"
                           value={currentAppointment?.status || 'PENDING'}
                           onChange={(e) => updateStatusMutation.mutate({ id: currentAppointment?.id!, status: e.target.value as any })}
                           disabled={updateStatusMutation.isPending}
