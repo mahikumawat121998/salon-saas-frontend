@@ -1,6 +1,6 @@
 import { Components, Theme } from '@mui/material/styles';
 
-export const datePickerOverrides: Components<Theme> = {
+export const datePickerOverrides: any = {
   MuiPickersLayout: {
     styleOverrides: {
       root: {

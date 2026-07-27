@@ -118,7 +118,7 @@ export default function POSPage() {
   // Fetch Services & Products
   const { data: catalogData = [] } = useQuery({
     queryKey: QUERY_KEYS.services.all,
-    queryFn: () => catalogApiService.getCatalog(),
+    queryFn: () => catalogApiService.getServices(),
   });
 
   const { data: inventoryData = [] } = useQuery({
@@ -128,11 +128,11 @@ export default function POSPage() {
 
   // Map to unified DisplayItem format
   const dynamicServices: DisplayItem[] = useMemo(() => {
-    return catalogData.map((item) => ({
+    return catalogData.map((item: any) => ({
       id: item.id,
       name: item.name,
-      category: item.category,
-      subtitle: item.duration ? `${item.duration} min` : 'Service',
+      category: item.category?.name || 'Service',
+      subtitle: item.durationMinutes ? `${item.durationMinutes} min` : 'Service',
       price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
       image: item.image || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=300&auto=format&fit=crop&q=80', // fallback image
       type: 'service',

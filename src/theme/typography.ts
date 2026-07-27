@@ -1,7 +1,4 @@
-import { TypographyOptions } from '@mui/material/styles';
-
-
-export const typography: TypographyOptions = {
+export const typography = {
   fontFamily: [
     'var(--font-inter)',
     'Inter',

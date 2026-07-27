@@ -51,32 +51,9 @@ import { PageHeader } from '@/shared/components/PageHeader';
 import { AddInventoryModal } from '@/shared/components/modals/AddInventoryModal';
 import { EditInventoryModal } from '@/shared/components/modals/EditInventoryModal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { inventoryApiService } from '@/services/api/inventory.service';
+import { inventoryApiService, InventoryProduct } from '@/services/api/inventory.service';
 import { QUERY_KEYS } from '@/config/query-keys';
 import { TableRowSkeleton } from '@/shared/components/loaders';
-
-export interface InventoryProduct {
-  id: string;
-  name: string;
-  sku: string;
-  category: string;
-  categoryBg: string;
-  categoryColor: string;
-  brand: string;
-  stock: number;
-  unit: string;
-  price: string;
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock';
-  image: string;
-  reorderLevel: number;
-  purchasePrice: string;
-  sellingPrice: string;
-  barcode: string;
-  expiryDate: string;
-  description: string;
-  addedOn: string;
-  lastUpdated: string;
-}
 
 export default function InventoryPage() {
   const queryClient = useQueryClient();

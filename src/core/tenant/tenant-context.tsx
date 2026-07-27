@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext } from 'react';
-import { useTenantStore, Tenant, Outlet } from '../stores/tenant.store';
+import { useTenantStore, TenantSummary as Tenant, OutletSummary as Outlet } from '../stores/tenant.store';
 
 interface TenantContextType {
   activeTenant: Tenant | null;

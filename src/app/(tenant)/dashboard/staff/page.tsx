@@ -55,7 +55,7 @@ import {
   Scissors,
   ShieldCheck,
 } from 'lucide-react';
-import { AddStaffModal } from './components/AddStaffModal';
+
 import { TableRowSkeleton } from '@/shared/components/loaders';
 import { AuthGuard } from '@/shared/components/auth/AuthGuard';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
