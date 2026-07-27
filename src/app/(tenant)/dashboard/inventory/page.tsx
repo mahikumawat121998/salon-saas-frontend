@@ -753,7 +753,7 @@ export default function InventoryPage() {
                       <Typography variant="body2" color="#111827" sx={{ fontWeight: 700, fontSize: '0.8125rem' }}>
                         {selectedProduct.barcode}
                       </Typography>
-                      <IconButton size="small" onClick={() => handleCopyBarcode(selectedProduct.barcode)}>
+                      <IconButton size="small" onClick={() => handleCopyBarcode(selectedProduct.barcode || '')}>
                         {copiedBarcode ? <Check size={14} color="#10B981" /> : <Copy size={14} color="#9CA3AF" />}
                       </IconButton>
                     </Box>
@@ -809,7 +809,7 @@ export default function InventoryPage() {
                       Added On
                     </Typography>
                     <Typography variant="caption" color="#4B5563" sx={{ fontWeight: 600, fontSize: '0.72rem' }}>
-                      {selectedProduct.addedOn}
+                      {selectedProduct.createdAt ? new Date(selectedProduct.createdAt).toLocaleDateString() : ''}
                     </Typography>
                   </Box>
 
@@ -818,7 +818,7 @@ export default function InventoryPage() {
                       Last Updated
                     </Typography>
                     <Typography variant="caption" color="#4B5563" sx={{ fontWeight: 600, fontSize: '0.72rem' }}>
-                      {selectedProduct.lastUpdated}
+                      {selectedProduct.updatedAt ? new Date(selectedProduct.updatedAt).toLocaleDateString() : ''}
                     </Typography>
                   </Box>
                 </Box>

@@ -759,7 +759,7 @@ export default function AppointmentsPage() {
               </Box>
 
               {/* Side-by-Side Date & Time Comparison Box */}
-              <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+              <Grid container spacing={2} sx={{ mb: 3, alignItems: 'center' }}>
                 {/* Current Appointment (Yellow Box) */}
                 <Grid size={{ xs: 12, sm: 5.5 }}>
                   <Box
