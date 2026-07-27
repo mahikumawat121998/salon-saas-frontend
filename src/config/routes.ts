@@ -1,0 +1,78 @@
+export const ROUTES = {
+  auth: {
+    login: '/login',
+    register: '/register',
+    forgotPassword: '/forgot-password',
+    resetPassword: '/reset-password',
+    verifyEmail: '/verify-email',
+    twoFactor: '/2fa',
+    selectTenant: '/select-tenant',
+    selectOutlet: '/select-outlet',
+    invitationAccepted: '/invitation-accepted',
+    createPassword: '/create-password',
+    sessionExpired: '/session-expired',
+  },
+  dashboard: {
+    root: '/dashboard',
+    calendar: '/dashboard/calendar',
+    appointments: {
+      root: '/dashboard/appointments',
+      new: '/dashboard/appointments/new',
+      details: (id: string) => `/dashboard/appointments/${id}`,
+    },
+    pos: {
+      root: '/dashboard/pos',
+      checkout: '/dashboard/pos/checkout',
+      history: '/dashboard/pos/history',
+    },
+    services: {
+      root: '/dashboard/services',
+      new: '/dashboard/services/new',
+      edit: (id: string) => `/dashboard/services/${id}/edit`,
+    },
+    staff: {
+      root: '/dashboard/staff',
+      new: '/dashboard/staff/new',
+      leaves: '/dashboard/staff/leaves',
+      breaks: '/dashboard/staff/breaks',
+      services: '/dashboard/staff/services',
+      details: (id: string) => `/dashboard/staff/${id}`,
+    },
+    customers: {
+      root: '/dashboard/customers',
+      new: '/dashboard/customers/new',
+      details: (id: string) => `/dashboard/customers/${id}`,
+    },
+    inventory: {
+      root: '/dashboard/inventory',
+      products: '/dashboard/inventory/products',
+      stockIn: '/dashboard/inventory/stock-in',
+      suppliers: '/dashboard/inventory/suppliers',
+    },
+    marketing: {
+      root: '/dashboard/marketing',
+      campaigns: '/dashboard/marketing/campaigns',
+      discounts: '/dashboard/marketing/discounts',
+    },
+    analytics: {
+      root: '/dashboard/analytics',
+      revenue: '/dashboard/analytics/revenue',
+      appointments: '/dashboard/analytics/appointments',
+      staff: '/dashboard/analytics/staff',
+      inventory: '/dashboard/analytics/inventory',
+    },
+    notifications: '/dashboard/notifications',
+    billing: {
+      root: '/dashboard/billing',
+      plans: '/dashboard/billing/plans',
+      invoices: '/dashboard/billing/invoices',
+    },
+    settings: {
+      root: '/dashboard/settings',
+      profile: '/dashboard/settings/profile',
+      businessHours: '/dashboard/settings/business-hours',
+      roles: '/dashboard/settings/roles',
+      integrations: '/dashboard/settings/integrations',
+    },
+  },
+};
