@@ -1,5 +1,12 @@
-import { redirect } from 'next/navigation';
-
 export default function HomePage() {
-  redirect('/dashboard');
+  return (
+    <html>
+      <head>
+        <meta httpEquiv="refresh" content="0; url=/dashboard" />
+      </head>
+      <body>
+        <script dangerouslySetInnerHTML={{ __html: `window.location.href='/dashboard'` }} />
+      </body>
+    </html>
+  );
 }
