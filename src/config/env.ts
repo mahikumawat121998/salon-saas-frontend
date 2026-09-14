@@ -12,17 +12,37 @@ const serverEnvSchema = z.object({
   nodeEnv: z.string().default('development'),
 });
 
-export const publicEnv = publicEnvSchema.parse({
-  apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
-  appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001',
-  appName: process.env.NEXT_PUBLIC_APP_NAME || 'SalonOS',
-  isDev: process.env.NODE_ENV === 'development',
-  isProd: process.env.NODE_ENV === 'production',
-});
+let parsedPublicEnv;
+try {
+  parsedPublicEnv = publicEnvSchema.parse({
+    apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+    appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001',
+    appName: process.env.NEXT_PUBLIC_APP_NAME || 'SalonOS',
+    isDev: process.env.NODE_ENV === 'development',
+    isProd: process.env.NODE_ENV === 'production',
+  });
+} catch (e) {
+  console.error("Failed to parse public env variables!", e);
+  parsedPublicEnv = {
+    apiUrl: 'http://localhost:3000/api',
+    appUrl: 'http://localhost:3001',
+    appName: 'SalonOS',
+    isDev: false,
+    isProd: true,
+  };
+}
 
-export const serverEnv = serverEnvSchema.parse({
-  nodeEnv: process.env.NODE_ENV || 'development',
-});
+let parsedServerEnv;
+try {
+  parsedServerEnv = serverEnvSchema.parse({
+    nodeEnv: process.env.NODE_ENV || 'development',
+  });
+} catch (e) {
+  parsedServerEnv = { nodeEnv: 'development' };
+}
+
+export const publicEnv = parsedPublicEnv;
+export const serverEnv = parsedServerEnv;
 
 export const env = {
   ...publicEnv,
