@@ -31,10 +31,10 @@ export interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      user: DEMO_USER,
-      token: 'demo_access_token',
-      refreshToken: 'demo_refresh_token',
-      isAuthenticated: true,
+      user: null,
+      token: null,
+      refreshToken: null,
+      isAuthenticated: false,
       setAuth: (token: string, refreshToken: string, user: AuthUser) => {
         if (typeof window !== 'undefined') {
           localStorage.setItem(AUTH_STORAGE_KEYS.accessToken, token);
