@@ -12,6 +12,7 @@
 
 html {
   height: 100%;
+  font-size: 78.125%;
 }
 
 html,
@@ -65,8 +66,8 @@ a {
   }
 
   /* 1. HIDE ALL BACKGROUND PAGE CONTENT (Sidebar, Topbar, Service Catalog, Main Page) */
-  body > div:not(.MuiDialog-root):not(.MuiModal-root),
-  main,
+  body > div:not(.MuiDialog-root):not(.MuiModal-root):not(:has(.printable-area)),
+  main:not(:has(.printable-area)),
   header,
   nav,
   aside,
@@ -77,6 +78,17 @@ a {
   button,
   .MuiIconButton-root {
     display: none !important;
+  }
+
+  .printable-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: #ffffff !important;
   }
 
   /* 2. ISOLATE DIALOG AS STANDALONE PRINT DOCUMENT */
@@ -150,4 +162,30 @@ a {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+}
+
+/* ========================================================================= */
+/* CUSTOM ELEGANT SCROLLBARS */
+/* ========================================================================= */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.8);
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
 }

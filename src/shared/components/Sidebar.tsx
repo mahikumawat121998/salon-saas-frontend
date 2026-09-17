@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   UserCheck,
   Users,
+  Banknote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -48,6 +49,7 @@ const iconMap: Record<string, React.ReactNode> = {
   Receipt: <Receipt size={20} />,
   Settings: <Settings size={20} />,
   ShieldCheck: <ShieldCheck size={20} />,
+  Banknote: <Banknote size={20} />,
 };
 
 export interface SidebarProps {

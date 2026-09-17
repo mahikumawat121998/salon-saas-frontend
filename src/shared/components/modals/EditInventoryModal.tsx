@@ -17,6 +17,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { inventoryApiService, InventoryProduct } from '@/services/api/inventory.service';
 import { QUERY_KEYS } from '@/config/query-keys';
 import { showToast } from '@/shared/components/Toast';
+import { ImageUpload } from '@/shared/components/ui/ImageUpload';
+import { useTenantStore } from '@/core/stores/tenant.store';
 
 interface EditInventoryModalProps {
   open: boolean;
@@ -26,6 +28,7 @@ interface EditInventoryModalProps {
 
 export function EditInventoryModal({ open, onClose, product }: EditInventoryModalProps) {
   const queryClient = useQueryClient();
+  const { activeTenant } = useTenantStore();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -38,6 +41,7 @@ export function EditInventoryModal({ open, onClose, product }: EditInventoryModa
     purchasePrice: '',
     sellingPrice: '',
     status: 'In Stock',
+    image: '',
   });
 
   useEffect(() => {
@@ -53,6 +57,7 @@ export function EditInventoryModal({ open, onClose, product }: EditInventoryModa
         purchasePrice: product.purchasePrice || '',
         sellingPrice: product.sellingPrice || '',
         status: product.status || 'In Stock',
+        image: product.image || '',
       });
     }
   }, [product]);
@@ -111,6 +116,16 @@ export function EditInventoryModal({ open, onClose, product }: EditInventoryModa
             />
           </Grid>
           
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.8, display: 'block', color: 'text.secondary' }}>Product Image</Typography>
+            <ImageUpload 
+              value={formData.image} 
+              onChange={(url) => setFormData({ ...formData, image: url })} 
+              className="w-full h-32"
+              folderPath={`tenants/${activeTenant?.id || 'unknown'}/inventory/${product?.id || 'unknown'}/image`}
+            />
+          </Grid>
+
           <Grid size={{ xs: 12, sm: 6 }}>
             <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.8, display: 'block', color: 'text.secondary' }}>SKU *</Typography>
             <TextField

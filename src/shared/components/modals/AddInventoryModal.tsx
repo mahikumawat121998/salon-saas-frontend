@@ -17,6 +17,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { inventoryApiService } from '@/services/api/inventory.service';
 import { QUERY_KEYS } from '@/config/query-keys';
 import { showToast } from '@/shared/components/Toast';
+import { ImageUpload } from '@/shared/components/ui/ImageUpload';
+import { useTenantStore } from '@/core/stores/tenant.store';
 
 interface AddInventoryModalProps {
   open: boolean;
@@ -25,6 +27,7 @@ interface AddInventoryModalProps {
 
 export function AddInventoryModal({ open, onClose }: AddInventoryModalProps) {
   const queryClient = useQueryClient();
+  const { activeTenant } = useTenantStore();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -37,6 +40,7 @@ export function AddInventoryModal({ open, onClose }: AddInventoryModalProps) {
     purchasePrice: '',
     sellingPrice: '',
     status: 'In Stock',
+    image: '',
   });
 
   const createMutation = useMutation({
@@ -58,6 +62,7 @@ export function AddInventoryModal({ open, onClose }: AddInventoryModalProps) {
         purchasePrice: '',
         sellingPrice: '',
         status: 'In Stock',
+        image: '',
       });
       onClose();
     },
@@ -105,6 +110,16 @@ export function AddInventoryModal({ open, onClose }: AddInventoryModalProps) {
             />
           </Grid>
           
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.8, display: 'block', color: 'text.secondary' }}>Product Image</Typography>
+            <ImageUpload 
+              value={formData.image} 
+              onChange={(url) => setFormData({ ...formData, image: url })} 
+              className="w-full h-32"
+              folderPath={`tenants/${activeTenant?.id || 'unknown'}/inventory/new/image`}
+            />
+          </Grid>
+
           <Grid size={{ xs: 12, sm: 6 }}>
             <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.8, display: 'block', color: 'text.secondary' }}>SKU *</Typography>
             <TextField

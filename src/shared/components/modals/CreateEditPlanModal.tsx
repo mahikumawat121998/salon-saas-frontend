@@ -36,6 +36,9 @@ const AVAILABLE_MODULES = [
   { code: 'REPORTS', label: 'Revenue & Staff Performance Reports' },
   { code: 'MARKETING', label: 'SMS Marketing Campaigns' },
   { code: 'WHATSAPP', label: 'WhatsApp Direct Confirmation Automation' },
+  { code: 'PAYROLL', label: 'Payroll & Commissions' },
+  { code: 'ATTENDANCE', label: 'Attendance Tracking' },
+  { code: 'LEAVE', label: 'Leave Management' },
 ];
 
 export function CreateEditPlanModal({ open, onClose, planToEdit }: CreateEditPlanModalProps) {

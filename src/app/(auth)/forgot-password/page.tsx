@@ -6,17 +6,42 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 import Link from 'next/link';
-import { Mail, Scissors, ArrowLeft } from 'lucide-react';
+import { Mail, Scissors, ArrowLeft, ExternalLink } from 'lucide-react';
 import { GuestGuard } from '@/shared/components/auth/GuestGuard';
+import { authApiService } from '@/services/api/auth.service';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [resetUrl, setResetUrl] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (!email.trim()) {
+      setErrorMsg('Please enter your email address.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const res = await authApiService.forgotPassword(email.trim());
+      setSubmitted(true);
+      if (res.resetUrl) {
+        setResetUrl(res.resetUrl);
+      }
+    } catch (err: any) {
+      setErrorMsg(
+        err?.response?.data?.message || 'Failed to process password reset. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -29,8 +54,11 @@ export default function ForgotPasswordPage() {
           alignItems: 'center',
           justifyContent: 'center',
           p: 3,
-          backgroundColor: '#FAF9FE',
-          backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.05) 0%, transparent 50%)',
+          backgroundColor: (t) => (t.palette.mode === 'dark' ? '#0B0F17' : '#FAF9FE'),
+          backgroundImage: (t) =>
+            t.palette.mode === 'dark'
+              ? 'radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 50%)'
+              : 'radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.05) 0%, transparent 50%)',
         }}
       >
         {/* Header Logo */}
@@ -50,10 +78,10 @@ export default function ForgotPasswordPage() {
             <Scissors size={24} color="#FFFFFF" />
           </Box>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#111827', lineHeight: 1.1 }}>
+            <Typography variant="h5" sx={{ fontWeight: 800, color: (t) => (t.palette.mode === 'dark' ? '#F8FAFC' : '#111827'), lineHeight: 1.1 }}>
               SalonOS
             </Typography>
-            <Typography variant="caption" sx={{ color: '#6B7280', fontSize: '0.75rem' }}>
+            <Typography variant="caption" sx={{ color: (t) => (t.palette.mode === 'dark' ? '#94A3B8' : '#6B7280'), fontSize: '0.75rem' }}>
               Salon Management System
             </Typography>
           </Box>
@@ -64,34 +92,84 @@ export default function ForgotPasswordPage() {
           sx={{
             width: '100%',
             maxWidth: 440,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: (t) => (t.palette.mode === 'dark' ? '#151E2E' : '#FFFFFF'),
             borderRadius: '24px',
             p: { xs: 3.5, sm: 4.5 },
-            boxShadow: '0px 24px 60px rgba(124, 58, 237, 0.08), 0px 4px 16px rgba(0, 0, 0, 0.02)',
-            border: '1px solid rgba(230, 232, 240, 0.8)',
+            boxShadow: (t) =>
+              t.palette.mode === 'dark'
+                ? '0px 24px 60px rgba(0, 0, 0, 0.4)'
+                : '0px 24px 60px rgba(124, 58, 237, 0.08), 0px 4px 16px rgba(0, 0, 0, 0.02)',
+            border: (t) =>
+              t.palette.mode === 'dark'
+                ? '1px solid rgba(255, 255, 255, 0.08)'
+                : '1px solid rgba(230, 232, 240, 0.8)',
             textAlign: 'center',
           }}
         >
-          <Typography variant="h5" color="#111827" sx={{ fontWeight: 800, mb: 1 }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: (t) => (t.palette.mode === 'dark' ? '#F8FAFC' : '#111827') }}>
             Forgot Password?
           </Typography>
-          <Typography variant="body2" color="#6B7280" sx={{ fontSize: '0.875rem', lineHeight: 1.5, mb: 3.5 }}>
+          <Typography variant="body2" sx={{ fontSize: '0.875rem', lineHeight: 1.5, mb: 3.5, color: (t) => (t.palette.mode === 'dark' ? '#94A3B8' : '#6B7280') }}>
             No worries! Enter your email address and we&apos;ll send you a link to reset your password.
           </Typography>
 
+          {errorMsg && (
+            <Alert severity="error" sx={{ mb: 3, borderRadius: '12px', textAlign: 'left' }}>
+              {errorMsg}
+            </Alert>
+          )}
+
           {submitted ? (
-            <Box sx={{ p: 2.5, borderRadius: '14px', backgroundColor: '#ECFDF5', border: '1px solid #D1FAE5', mb: 3 }}>
-              <Typography variant="subtitle2" color="#065F46" sx={{ fontWeight: 800, mb: 0.5 }}>
+            <Box
+              sx={{
+                p: 2.5,
+                borderRadius: '14px',
+                backgroundColor: (t) => (t.palette.mode === 'dark' ? 'rgba(16, 185, 129, 0.15)' : '#ECFDF5'),
+                border: (t) => (t.palette.mode === 'dark' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #D1FAE5'),
+                mb: 3,
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5, color: (t) => (t.palette.mode === 'dark' ? '#34D399' : '#065F46') }}>
                 Reset Link Sent!
               </Typography>
-              <Typography variant="caption" color="#047857">
-                Check your inbox for further instructions to reset your password.
+              <Typography variant="caption" sx={{ display: 'block', mb: resetUrl ? 1.5 : 0, color: (t) => (t.palette.mode === 'dark' ? '#6EE7B7' : '#047857') }}>
+                If an account with <strong>{email}</strong> exists, instructions to reset your password have been issued.
               </Typography>
+              {resetUrl && (
+                <Box
+                  sx={{
+                    mt: 1.5,
+                    p: 1.5,
+                    borderRadius: '10px',
+                    backgroundColor: (t) => (t.palette.mode === 'dark' ? '#0F172A' : '#FFFFFF'),
+                    border: '1px dashed #10B981',
+                    textAlign: 'left',
+                  }}
+                >
+                  <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.5, color: (t) => (t.palette.mode === 'dark' ? '#94A3B8' : '#475569') }}>
+                    🛠️ Dev Shortcut (Direct Reset Link):
+                  </Typography>
+                  <Link
+                    href={resetUrl}
+                    style={{
+                      wordBreak: 'break-all',
+                      color: '#A78BFA',
+                      fontWeight: 700,
+                      fontSize: '0.8125rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    Open Reset Password Page <ExternalLink size={14} />
+                  </Link>
+                </Box>
+              )}
             </Box>
           ) : (
             <Box component="form" onSubmit={handleSubmit} noValidate>
               <Box sx={{ textAlign: 'left', mb: 3 }}>
-                <Typography variant="caption" color="#374151" sx={{ fontWeight: 600, mb: 0.8, display: 'block' }}>
+                <Typography variant="caption" sx={{ fontWeight: 600, mb: 0.8, display: 'block', color: (t) => (t.palette.mode === 'dark' ? '#E2E8F0' : '#374151') }}>
                   Email Address
                 </Typography>
                 <TextField
@@ -100,18 +178,23 @@ export default function ForgotPasswordPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
                   slotProps={{
                     input: {
                       startAdornment: (
-                        <InputAdornment position="start" sx={{ color: '#9CA3AF' }}>
+                        <InputAdornment position="start" sx={{ color: (t) => (t.palette.mode === 'dark' ? '#94A3B8' : '#9CA3AF') }}>
                           <Mail size={18} />
                         </InputAdornment>
                       ),
                       sx: {
                         borderRadius: '12px',
-                        backgroundColor: '#FAFAFC',
+                        backgroundColor: (t) => (t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#FAFAFC'),
+                        color: (t) => (t.palette.mode === 'dark' ? '#F8FAFC' : '#111827'),
                         fontSize: '0.9375rem',
-                        '& fieldset': { borderColor: '#E5E7EB' },
+                        '& input': {
+                          color: (t) => (t.palette.mode === 'dark' ? '#F8FAFC' : '#111827'),
+                        },
+                        '& fieldset': { borderColor: (t) => (t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : '#E5E7EB') },
                         '&:hover fieldset': { borderColor: '#A78BFA' },
                         '&.Mui-focused fieldset': { borderColor: '#7C3AED' },
                       },
@@ -124,19 +207,20 @@ export default function ForgotPasswordPage() {
                 type="submit"
                 fullWidth
                 variant="contained"
+                disabled={loading}
                 sx={{
                   py: 1.4,
                   borderRadius: '12px',
-                  backgroundColor: '#6D28D9',
+                  backgroundColor: '#7C3AED',
                   fontSize: '0.95rem',
                   fontWeight: 700,
                   textTransform: 'none',
-                  boxShadow: '0px 8px 20px rgba(109, 40, 217, 0.3)',
+                  boxShadow: '0px 8px 20px rgba(124, 58, 237, 0.35)',
                   mb: 3,
-                  '&:hover': { backgroundColor: '#5B21B6' },
+                  '&:hover': { backgroundColor: '#6D28D9' },
                 }}
               >
-                Send Reset Link
+                {loading ? <CircularProgress size={22} color="inherit" /> : 'Send Reset Link'}
               </Button>
             </Box>
           )}
@@ -147,7 +231,7 @@ export default function ForgotPasswordPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              color: '#7C3AED',
+              color: '#A78BFA',
               fontWeight: 700,
               fontSize: '0.875rem',
               textDecoration: 'none',

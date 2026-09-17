@@ -12,9 +12,9 @@ export const tableOverride: Components<Theme>['MuiTable'] = {
 export const tableCellOverride: Components<Theme>['MuiTableCell'] = {
   styleOverrides: {
     root: ({ theme }) => ({
-      padding: '14px 16px',
+      padding: '6px 10px',
       borderBottom: `1px solid ${theme.palette.divider}`,
-      fontSize: '0.875rem',
+      fontSize: '0.8125rem',
       color: theme.palette.text.primary,
     }),
     head: ({ theme }) => ({

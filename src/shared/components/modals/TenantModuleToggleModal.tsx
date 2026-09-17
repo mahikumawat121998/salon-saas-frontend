@@ -105,6 +105,27 @@ const ALL_MODULES = [
     icon: MessageSquare,
     color: '#22C55E',
   },
+  {
+    code: 'ATTENDANCE',
+    name: 'Attendance Tracking',
+    description: 'Staff clock-in/out, breaks, and daily attendance logs',
+    icon: Sparkles,
+    color: '#06B6D4',
+  },
+  {
+    code: 'LEAVE',
+    name: 'Leave Management',
+    description: 'Leave requests, approvals, and balances',
+    icon: Sparkles,
+    color: '#F43F5E',
+  },
+  {
+    code: 'PAYROLL',
+    name: 'Payroll & Commissions',
+    description: 'Automated payroll generation & commission splits',
+    icon: Sparkles,
+    color: '#14B8A6',
+  }
 ];
 
 export function TenantModuleToggleModal({

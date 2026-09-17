@@ -3,10 +3,10 @@ import { Components, Theme } from '@mui/material/styles';
 export const buttonOverride: Components<Theme>['MuiButton'] = {
   styleOverrides: {
     root: {
-      borderRadius: '10px',
+      borderRadius: '8px',
       textTransform: 'none',
       fontWeight: 600,
-      padding: '8px 18px',
+      padding: '6px 14px',
       boxShadow: 'none',
       transition: 'all 0.2s ease-in-out',
       '&:hover': {

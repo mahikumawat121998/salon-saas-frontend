@@ -64,6 +64,9 @@ import { AuthGuard } from '@/shared/components/auth/AuthGuard';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Avatar } from '@/shared/ui/Avatar';
+import { ImageUpload } from '@/shared/components/ui/ImageUpload';
+import { useTenantStore } from '@/core/stores/tenant.store';
+import { env } from '@/config/env';
 
 export interface StaffItem {
   id: string;
@@ -286,6 +289,7 @@ const STAFF_DATA: StaffItem[] = [
 ];
 
 export default function StaffPage() {
+  const { activeTenant } = useTenantStore();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -296,47 +300,103 @@ export default function StaffPage() {
   // Selected Staff Item
   const [selectedStaff, setSelectedStaff] = useState<StaffItem>(STAFF_DATA[0]);
 
-  useEffect(() => {
-    async function loadRealStaff() {
-      try {
-        setIsLoadingStaff(true);
-        const data = await staffApiService.getStaff();
-        if (data && data.length > 0) {
-          const mapped: StaffItem[] = data.map((s, idx) => ({
-            id: s.id,
-            empId: `EMP-${1001 + idx}`,
-            name: s.name,
-            role: 'Stylist',
-            department: 'Hair Services',
-            phone: s.phone || '+91 99999 99999',
-            email: `${s.name.toLowerCase().replace(/[^a-z]/g, '')}@salon.com`,
-            nextShift: 'Today, 09:00 AM',
-            status: s.status === 'ACTIVE' ? 'Active' : 'Inactive',
-            avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80`,
-            dob: '15 Aug 1995',
-            gender: 'Male',
-            joiningDate: '01 Jan 2024',
-            workingHours: '09:00 AM - 06:00 PM',
-            address: 'Main Salon Lounge',
-            emergencyContact: 'Emergency Contact +91 98765 43210',
-            notes: 'Active team member',
-            summary: {
-              totalAppointments: 28,
-              completedToday: 4,
-              weeklyOff: 'Sunday',
-            },
-          }));
-          setStaffList(mapped);
-          setSelectedStaff(mapped[0]);
-        }
-      } catch (err) {
-        // Fallback to static mock if backend loading
-      } finally {
-        setIsLoadingStaff(false);
+  // Picture upload state
+  const [staffAvatar, setStaffAvatar] = useState<string>('');
+
+  const loadRealStaff = async () => {
+    try {
+      setIsLoadingStaff(true);
+      const data = await staffApiService.getStaff();
+      if (data && data.length > 0) {
+        const mapped: StaffItem[] = data.map((s, idx) => ({
+          id: s.id,
+          empId: `EMP-${1001 + idx}`,
+          name: s.name,
+          role: 'Stylist',
+          department: 'Hair Services',
+          phone: s.phone || '+91 99999 99999',
+          email: `${s.name.toLowerCase().replace(/[^a-z]/g, '')}@salon.com`,
+          nextShift: 'Today, 09:00 AM',
+          status: s.status === 'ACTIVE' ? 'Active' : 'Inactive',
+          avatar: s.profilePicture 
+            ? (s.profilePicture.startsWith('http') ? s.profilePicture : `${env.apiUrl}${s.profilePicture}`) 
+            : `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80`,
+          dob: '15 Aug 1995',
+          gender: 'Male',
+          joiningDate: '01 Jan 2024',
+          workingHours: '09:00 AM - 06:00 PM',
+          address: 'Main Salon Lounge',
+          emergencyContact: 'Emergency Contact +91 98765 43210',
+          notes: 'Active team member',
+          summary: {
+            totalAppointments: 28,
+            completedToday: 4,
+            weeklyOff: 'Sunday',
+          },
+        }));
+        setStaffList(mapped);
+        setSelectedStaff(mapped[0]);
       }
+    } catch (err) {
+      // Fallback to static mock if backend loading
+    } finally {
+      setIsLoadingStaff(false);
     }
+  };
+
+  useEffect(() => {
     loadRealStaff();
   }, []);
+
+  const [newStaffData, setNewStaffData] = useState({ name: '', phone: '' });
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [editStaffData, setEditStaffData] = useState({ name: '', phone: '' });
+
+  useEffect(() => {
+    if (selectedStaff) {
+      setEditStaffData({ name: selectedStaff.name, phone: selectedStaff.phone || '' });
+      setStaffAvatar(''); // reset upload state when selection changes
+    }
+  }, [selectedStaff]);
+
+  const handleSaveStaff = async () => {
+    if (!newStaffData.name) return;
+    try {
+      setIsSaving(true);
+      await staffApiService.createStaff({
+        name: newStaffData.name,
+        phone: newStaffData.phone,
+        profilePicture: staffAvatar,
+      });
+      setIsAddModalOpen(false);
+      setNewStaffData({ name: '', phone: '' });
+      setStaffAvatar('');
+      await loadRealStaff();
+    } catch (error) {
+      console.error('Failed to save staff:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditStaff = async () => {
+    if (!selectedStaff || !editStaffData.name) return;
+    try {
+      setIsSaving(true);
+      await staffApiService.updateStaff(selectedStaff.id, {
+        name: editStaffData.name,
+        phone: editStaffData.phone,
+        profilePicture: staffAvatar || undefined, // undefined will let the backend keep the old one, but wait, if it's set we use it. If not, we don't send it. Actually backend might null it if undefined.
+      });
+      setIsEditModalOpen(false);
+      await loadRealStaff();
+    } catch (error) {
+      console.error('Failed to update staff:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Modals & Drawer Open State
   const [activeDrawerTab, setActiveDrawerTab] = useState<number>(0);
@@ -911,7 +971,7 @@ export default function StaffPage() {
                 <Grid container spacing={2.5} sx={{ mb: 4 }}>
                   {/* Column 1: Personal Information */}
                   <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{ borderRadius: '16px', border: '1px solid #F3F4F6', p: 2, backgroundColor: '#FFFFFF', height: '100%' }}>
+                    <Card sx={{ borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', p: 2, backgroundColor: 'rgba(255, 255, 255, 0.03)', height: '100%', color: '#F9FAFB' }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.875rem' }}>
                           Personal Information
@@ -941,7 +1001,7 @@ export default function StaffPage() {
 
                   {/* Column 2: Work Information */}
                   <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{ borderRadius: '16px', border: '1px solid #F3F4F6', p: 2, backgroundColor: '#FFFFFF', height: '100%' }}>
+                    <Card sx={{ borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', p: 2, backgroundColor: 'rgba(255, 255, 255, 0.03)', height: '100%', color: '#F9FAFB' }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.875rem' }}>
                           Work Information
@@ -968,7 +1028,7 @@ export default function StaffPage() {
 
                   {/* Column 3: Summary */}
                   <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{ borderRadius: '16px', border: '1px solid #F3F4F6', p: 2, backgroundColor: '#FFFFFF', height: '100%' }}>
+                    <Card sx={{ borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', p: 2, backgroundColor: 'rgba(255, 255, 255, 0.03)', height: '100%', color: '#F9FAFB' }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.875rem', mb: 1.5 }}>
                         Summary
                       </Typography>
@@ -984,7 +1044,7 @@ export default function StaffPage() {
                 </Grid>
 
                 {/* Quick Actions Toolbar */}
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.875rem', mb: 1.5, color: '#111827' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.875rem', mb: 1.5, color: '#F9FAFB' }}>
                   Quick Actions
                 </Typography>
                 <Grid container spacing={1.5}>
@@ -1074,8 +1134,12 @@ export default function StaffPage() {
             <DialogContent dividers sx={{ border: 'none' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1.5, color: '#111827' }}>Personal Information</Typography>
               <Grid container spacing={2} sx={{ mb: 2 }}>
-                <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Full Name *</Typography><TextField fullWidth size="small" placeholder="Enter full name" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
-                <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Phone Number *</Typography><TextField fullWidth size="small" defaultValue="+91 " sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
+                <Grid size={{ xs: 12 }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151', alignSelf: 'flex-start' }}>Profile Picture</Typography>
+                  <ImageUpload value={staffAvatar} onChange={setStaffAvatar} folderPath={`tenants/${activeTenant?.id || 'unknown'}/staff/new/profile`} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Full Name *</Typography><TextField fullWidth size="small" placeholder="Enter full name" value={newStaffData.name} onChange={(e) => setNewStaffData({ ...newStaffData, name: e.target.value })} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Phone Number *</Typography><TextField fullWidth size="small" placeholder="+91" value={newStaffData.phone} onChange={(e) => setNewStaffData({ ...newStaffData, phone: e.target.value })} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
                 <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Email *</Typography><TextField fullWidth size="small" placeholder="Enter email address" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
                 <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Date of Birth *</Typography><TextField fullWidth size="small" placeholder="Select date" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
                 <Grid size={{ xs: 12, sm: 12 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Gender *</Typography><Select fullWidth size="small" defaultValue="" displayEmpty sx={{ borderRadius: '10px' }}><MenuItem value="" disabled>Select gender</MenuItem><MenuItem value="male">Male</MenuItem><MenuItem value="female">Female</MenuItem></Select></Grid>
@@ -1090,7 +1154,9 @@ export default function StaffPage() {
             </DialogContent>
             <DialogActions sx={{ p: 2 }}>
               <Button onClick={() => setIsAddModalOpen(false)} sx={{ color: '#6B7280', textTransform: 'none', fontWeight: 700 }}>Cancel</Button>
-              <Button variant="contained" onClick={() => setIsAddModalOpen(false)} sx={{ backgroundColor: '#7C3AED', textTransform: 'none', fontWeight: 800, borderRadius: '10px', px: 3 }}>Save Staff</Button>
+              <Button variant="contained" onClick={handleSaveStaff} disabled={isSaving || !newStaffData.name} sx={{ backgroundColor: '#7C3AED', textTransform: 'none', fontWeight: 800, borderRadius: '10px', px: 3 }}>
+                {isSaving ? 'Saving...' : 'Save Staff'}
+              </Button>
             </DialogActions>
           </Dialog>
 
@@ -1104,15 +1170,21 @@ export default function StaffPage() {
             </DialogTitle>
             <DialogContent dividers sx={{ border: 'none' }}>
               <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Full Name *</Typography><TextField fullWidth size="small" defaultValue={selectedStaff.name} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
-                <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Phone Number *</Typography><TextField fullWidth size="small" defaultValue={selectedStaff.phone} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
+                <Grid size={{ xs: 12 }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151', alignSelf: 'flex-start' }}>Profile Picture</Typography>
+                  <ImageUpload value={staffAvatar || selectedStaff.avatar} onChange={setStaffAvatar} folderPath={`tenants/${activeTenant?.id || 'unknown'}/staff/${selectedStaff.id || 'unknown'}/profile`} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Full Name *</Typography><TextField fullWidth size="small" value={editStaffData.name} onChange={(e) => setEditStaffData({ ...editStaffData, name: e.target.value })} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Phone Number *</Typography><TextField fullWidth size="small" value={editStaffData.phone} onChange={(e) => setEditStaffData({ ...editStaffData, phone: e.target.value })} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
                 <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Role *</Typography><Select fullWidth size="small" defaultValue="senior_stylist" sx={{ borderRadius: '10px' }}><MenuItem value="senior_stylist">{selectedStaff.role}</MenuItem></Select></Grid>
                 <Grid size={{ xs: 12, sm: 6 }}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: '#374151' }}>Department *</Typography><Select fullWidth size="small" defaultValue="hair" sx={{ borderRadius: '10px' }}><MenuItem value="hair">{selectedStaff.department}</MenuItem></Select></Grid>
               </Grid>
             </DialogContent>
             <DialogActions sx={{ p: 2 }}>
               <Button onClick={() => setIsEditModalOpen(false)} sx={{ color: '#6B7280', textTransform: 'none', fontWeight: 700 }}>Cancel</Button>
-              <Button variant="contained" onClick={() => setIsEditModalOpen(false)} sx={{ backgroundColor: '#7C3AED', textTransform: 'none', fontWeight: 800, borderRadius: '10px', px: 3 }}>Save Changes</Button>
+              <Button variant="contained" onClick={handleEditStaff} disabled={isSaving || !editStaffData.name} sx={{ backgroundColor: '#7C3AED', textTransform: 'none', fontWeight: 800, borderRadius: '10px', px: 3 }}>
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </Button>
             </DialogActions>
           </Dialog>
 

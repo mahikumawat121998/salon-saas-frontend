@@ -27,7 +27,7 @@ export const outlinedInputOverride: Components<Theme>['MuiOutlinedInput'] = {
       },
     }),
     input: ({ theme }) => ({
-      padding: '12px 14px',
+      padding: '8px 12px',
       '&:-webkit-autofill': {
         WebkitBoxShadow: theme.palette.mode === 'dark' ? '0 0 0 100px #1E293B inset' : '0 0 0 100px #FFFFFF inset',
         WebkitTextFillColor: theme.palette.text.primary,

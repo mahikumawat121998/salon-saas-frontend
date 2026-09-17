@@ -37,13 +37,16 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     () => false
   );
 
-  const activeMode = isHydrated ? mode : 'light';
-  const activeTheme = activeMode === 'dark' ? darkTheme : lightTheme;
+  if (!isHydrated) {
+    return <div style={{ minHeight: '100vh', background: 'var(--background)' }} />;
+  }
+
+  const activeTheme = mode === 'dark' ? darkTheme : lightTheme;
 
   return (
     <ColorModeContext.Provider
       value={{
-        mode: activeMode,
+        mode,
         toggleColorMode: toggleTheme,
         setMode,
       }}

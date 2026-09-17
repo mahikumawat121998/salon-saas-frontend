@@ -169,17 +169,21 @@ function LoginContent() {
       // Intentionally not passing the raw Error object to console.error 
       // to prevent Next.js Dev Overlay from catching it as an unhandled exception.
       console.log('Login attempt failed.');
+      const status = err?.response?.status;
       const apiMsg = err?.response?.data?.message || err?.message;
-      if (typeof apiMsg === 'string') {
-        setError(apiMsg);
-        toast.error(apiMsg);
+      
+      let finalErrorMsg = 'Login failed. Please try again.';
+      
+      if (status === 401 || (typeof apiMsg === 'string' && apiMsg.toLowerCase().includes('credential'))) {
+        finalErrorMsg = 'Invalid credentials. Please fill in the correct credentials to login.';
+      } else if (typeof apiMsg === 'string') {
+        finalErrorMsg = apiMsg;
       } else if (Array.isArray(apiMsg)) {
-        setError(apiMsg.join(', '));
-        toast.error(apiMsg.join(', '));
-      } else {
-        setError('Invalid email or password. Please check your credentials.');
-        toast.error('Invalid email or password. Please check your credentials.');
+        finalErrorMsg = apiMsg.join(', ');
       }
+      
+      setError(finalErrorMsg);
+      toast.error(finalErrorMsg);
       
       // Reset inputs after wrong credentials
       setEmail('');

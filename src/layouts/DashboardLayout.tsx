@@ -37,9 +37,11 @@ import {
   Receipt,
   Scissors,
   Settings,
+  ShieldCheck,
   Sun,
   UserCheck,
   Users,
+  Banknote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -62,6 +64,8 @@ const iconMap: Record<string, React.ReactNode> = {
   Bell: <Bell size={20} />,
   Receipt: <Receipt size={20} />,
   Settings: <Settings size={20} />,
+  Banknote: <Banknote size={20} />,
+  ShieldCheck: <ShieldCheck size={20} />,
 };
 
 export interface DashboardLayoutProps {
@@ -504,7 +508,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2.5, sm: 3.5, md: 4 },
+          p: { xs: 2, sm: 2.5, md: 3 },
           width: { xs: '100%', md: `calc(100% - ${DRAWER_WIDTH}px)` },
           minWidth: 0,
           mt: `${(impersonatingData ? 34 : 0) + (user?.subscriptionStatus === 'TRIALING' ? 34 : 0) + TOPBAR_HEIGHT}px`,

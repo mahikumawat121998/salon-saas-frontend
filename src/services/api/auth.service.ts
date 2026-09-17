@@ -57,4 +57,26 @@ export const authApiService = {
     );
     return response.data.data;
   },
+
+  /**
+   * Request password reset link via POST /api/auth/forgot-password
+   */
+  async forgotPassword(email: string): Promise<{ message: string; resetUrl?: string }> {
+    const response = await publicApiClient.post<ApiResponse<{ message: string; resetUrl?: string }>>(
+      API_ENDPOINTS.auth.forgotPassword,
+      { email }
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Reset password using token via POST /api/auth/reset-password
+   */
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const response = await publicApiClient.post<ApiResponse<{ message: string }>>(
+      API_ENDPOINTS.auth.resetPassword,
+      { token, newPassword }
+    );
+    return response.data.data;
+  },
 };

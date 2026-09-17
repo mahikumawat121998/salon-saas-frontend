@@ -41,6 +41,9 @@ const ALL_MODULE_MAP: Record<string, string> = {
   REPORTS: 'Revenue & Staff Analytics',
   MARKETING: 'SMS Marketing Campaigns',
   WHATSAPP: 'WhatsApp Business Direct',
+  ATTENDANCE: 'Attendance Tracking',
+  LEAVE: 'Leave Management',
+  PAYROLL: 'Payroll & Commissions',
 };
 
 export default function PlansManagementPage() {

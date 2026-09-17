@@ -47,6 +47,28 @@ export const MAIN_NAVIGATION: NavItem[] = [
     module: 'STAFF',
   },
   {
+    title: 'Attendance',
+    path: '/dashboard/attendance',
+    icon: 'Clock',
+    module: 'ATTENDANCE',
+    children: [
+      {
+        title: 'Dashboard',
+        path: '/dashboard/attendance',
+      },
+      {
+        title: 'Terminal UI',
+        path: '/dashboard/attendance/terminal',
+      },
+    ]
+  },
+  {
+    title: 'Leave Management',
+    path: '/dashboard/leave',
+    icon: 'Calendar',
+    module: 'LEAVE',
+  },
+  {
     title: 'Roles & Permissions',
     path: '/dashboard/settings/roles',
     icon: 'ShieldCheck',
@@ -94,6 +116,11 @@ export const MAIN_NAVIGATION: NavItem[] = [
     icon: 'BarChart3',
     permission: 'analytics:read',
     module: 'REPORTS',
+  },
+  {
+    title: 'Payroll',
+    path: '/dashboard/payroll',
+    icon: 'Banknote',
   },
   {
     title: 'Settings',

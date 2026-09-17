@@ -1,9 +1,9 @@
 export const LAYOUT = {
   sidebar: {
-    expandedWidth: 280,
-    collapsedWidth: 80,
+    expandedWidth: 230,
+    collapsedWidth: 64,
   },
   topbar: {
-    height: 72,
+    height: 56,
   },
 } as const;

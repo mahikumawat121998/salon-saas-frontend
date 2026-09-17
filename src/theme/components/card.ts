@@ -19,9 +19,9 @@ export const cardOverride: Components<Theme>['MuiCard'] = {
 export const cardContentOverride: Components<Theme>['MuiCardContent'] = {
   styleOverrides: {
     root: {
-      padding: '24px',
+      padding: '12px 16px',
       '&:last-child': {
-        paddingBottom: '24px',
+        paddingBottom: '16px',
       },
     },
   },

@@ -26,6 +26,16 @@ export const staffApiService = {
     return response.data.data;
   },
 
+  async createStaff(data: any): Promise<StaffItem> {
+    const response = await axiosClient.post<ApiResponse<StaffItem>>('/staff', data);
+    return response.data.data;
+  },
+
+  async updateStaff(id: string, data: any): Promise<StaffItem> {
+    const response = await axiosClient.patch<ApiResponse<StaffItem>>(`/staff/${id}`, data);
+    return response.data.data;
+  },
+
   async getStaffSchedule(staffId: string): Promise<StaffScheduleItem[]> {
     const response = await axiosClient.get<ApiResponse<StaffScheduleItem[]>>(`/staff/${staffId}/schedules`);
     return response.data.data;
