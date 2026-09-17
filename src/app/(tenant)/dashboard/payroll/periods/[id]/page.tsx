@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+export const runtime = 'edge';
 import { useParams } from 'next/navigation';
 import {
   Box,
