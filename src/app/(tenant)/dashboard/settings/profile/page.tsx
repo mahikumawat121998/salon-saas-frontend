@@ -138,6 +138,7 @@ export default function SettingsPage() {
     darkMode: false,
     staffHours: true,
   });
+  const [logoUrl, setLogoUrl] = useState<string>('');
 
   const [businessHours, setBusinessHours] = useState([
     { dayOfWeek: 1, dayName: 'Monday', openTime: '09:00', closeTime: '21:00', isOpen: true },
@@ -439,8 +440,8 @@ export default function SettingsPage() {
                     {/* Salon Logo Box */}
                     <Box sx={{ width: 72, height: 72, flexShrink: 0, boxShadow: '0px 4px 12px rgba(0,0,0,0.15)', borderRadius: '16px', overflow: 'hidden' }}>
                       <ImageUpload 
-                        value={formData.logoUrl} 
-                        onChange={(url) => setFormData(prev => ({ ...prev, logoUrl: url }))} 
+                        value={logoUrl || activeTenant?.logoUrl} 
+                        onChange={setLogoUrl} 
                         className="w-full h-full" 
                         folderPath={`tenants/${activeTenant?.id || 'unknown'}/salon/logo`}
                         placeholder="Logo"

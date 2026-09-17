@@ -8,6 +8,7 @@ export interface StaffItem {
   phone: string | null;
   status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
+  profilePicture?: string | null;
   schedules?: StaffScheduleItem[];
 }
 

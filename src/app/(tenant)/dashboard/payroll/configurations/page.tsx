@@ -182,8 +182,9 @@ export default function SalaryConfigurationsPage() {
   ];
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Header */}
+    <DashboardLayout>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* Header */}
       <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mb: 4 }}>
         <IconButton component={Link} href="/dashboard/payroll" size="small">
           <ArrowLeft size={20} />
@@ -354,6 +355,7 @@ export default function SalaryConfigurationsPage() {
                 {saveMutation.isPending ? 'Saving...' : 'Save Salary Config'}
               </Button>
             </Stack>
+          </Stack>
           </Box>
         </Drawer>
       </Container>

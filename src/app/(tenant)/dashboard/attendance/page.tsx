@@ -56,14 +56,15 @@ export default function AttendanceDashboardPage() {
       headerName: 'Status',
       flex: 0.8,
       renderCell: (params) => {
-        const conf: any = {
+        const statusMap: Record<string, any> = {
           PRESENT: { color: 'success' },
           ABSENT: { color: 'error' },
           HALF_DAY: { color: 'warning' },
           ON_LEAVE: { color: 'info' },
           HOLIDAY: { color: 'default' },
           WEEK_OFF: { color: 'default' },
-        }[params.value] || { color: 'default' };
+        };
+        const conf = statusMap[String(params.value)] || { color: 'default' };
         return <Chip label={params.value} color={conf.color} size="small" variant="filled" />;
       },
     },
