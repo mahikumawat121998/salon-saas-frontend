@@ -75,6 +75,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   folderPath
 }) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Cropper state
@@ -121,6 +122,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       );
 
       const url = await uploadService.uploadImage(croppedFile, folderPath);
+      setHasError(false);
       onChange(url);
     } catch (error) {
       console.error('Upload failed:', error);
@@ -139,14 +141,16 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setHasError(false);
     onChange('');
   };
 
   const displayUrl = value ? (value.startsWith('http') ? value : `${env.apiUrl}${value}`) : null;
 
   return (
-    <Box
-      onClick={() => fileInputRef.current?.click()}
+    <>
+      <Box
+        onClick={() => fileInputRef.current?.click()}
       className={className}
       sx={{
         position: 'relative',
@@ -170,12 +174,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     >
       {isUploading ? (
         <CircularProgress size={32} />
-      ) : displayUrl ? (
+      ) : displayUrl && !hasError ? (
         <>
           <Box
             component="img"
             src={displayUrl}
             alt="Uploaded"
+            onError={() => setHasError(true)}
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
           <IconButton
@@ -201,6 +206,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           </Typography>
         </Box>
       )}
+      </Box>
       <input
         type="file"
         accept="image/*"
@@ -237,6 +243,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </>
   );
 };

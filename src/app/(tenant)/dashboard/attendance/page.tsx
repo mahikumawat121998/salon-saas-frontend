@@ -34,7 +34,7 @@ export default function AttendanceDashboardPage() {
       headerName: 'S.No.',
       width: 70,
       renderCell: (params) => {
-        const index = attendanceData.findIndex((row) => row.id === params.row.id);
+        const index = attendanceData.findIndex((row) => row.staff?.id === params.row.staff?.id);
         return index + 1;
       },
     },
@@ -56,6 +56,9 @@ export default function AttendanceDashboardPage() {
       headerName: 'Status',
       flex: 0.8,
       renderCell: (params) => {
+        const status = params.row.attendance?.status;
+        if (!status) return <Typography variant="body2" color="text.secondary">-</Typography>;
+        
         const statusMap: Record<string, any> = {
           PRESENT: { color: 'success' },
           ABSENT: { color: 'error' },
@@ -64,27 +67,36 @@ export default function AttendanceDashboardPage() {
           HOLIDAY: { color: 'default' },
           WEEK_OFF: { color: 'default' },
         };
-        const conf = statusMap[String(params.value)] || { color: 'default' };
-        return <Chip label={params.value} color={conf.color} size="small" variant="filled" />;
+        const conf = statusMap[String(status)] || { color: 'default' };
+        return <Chip label={status} color={conf.color} size="small" variant="filled" />;
       },
     },
     {
       field: 'clockIn',
       headerName: 'Clock In',
       flex: 1,
-      renderCell: (params) => params.value ? format(new Date(params.value), 'hh:mm a') : '-',
+      renderCell: (params) => {
+        const val = params.row.attendance?.clockIn;
+        return val ? format(new Date(val), 'hh:mm a') : '-';
+      },
     },
     {
       field: 'clockOut',
       headerName: 'Clock Out',
       flex: 1,
-      renderCell: (params) => params.value ? format(new Date(params.value), 'hh:mm a') : '-',
+      renderCell: (params) => {
+        const val = params.row.attendance?.clockOut;
+        return val ? format(new Date(val), 'hh:mm a') : '-';
+      },
     },
     {
       field: 'workingHours',
       headerName: 'Working Hours',
       flex: 1,
-      renderCell: (params) => `${params.value?.toFixed(2)} hrs`,
+      renderCell: (params) => {
+        const val = params.row.attendance?.workingHours;
+        return val != null ? `${Number(val).toFixed(2)} hrs` : '-';
+      },
     },
     {
       field: 'actions',
@@ -150,6 +162,7 @@ export default function AttendanceDashboardPage() {
             <DataGrid
               rows={attendanceData}
               columns={columns}
+              getRowId={(row) => row.staff?.id || Math.random().toString()}
               loading={isLoading}
               autoHeight
               disableRowSelectionOnClick

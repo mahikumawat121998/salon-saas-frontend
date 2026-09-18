@@ -245,11 +245,16 @@ export function AddAppointmentModal({ open, onClose }: AddAppointmentModalProps)
         <Button
           variant="contained"
           onClick={() => {
+            const appointmentDate = new Date(formData.startAt);
+            if (appointmentDate < new Date()) {
+              showToast.error('Invalid Time', 'Appointments cannot be scheduled in the past.');
+              return;
+            }
             createAppointmentMutation.mutate({
               customerId: formData.customerId,
               staffId: formData.staffId,
               serviceId: formData.serviceId,
-              startAt: new Date(formData.startAt).toISOString(),
+              startAt: appointmentDate.toISOString(),
               source: formData.source as any,
               customerNotes: formData.customerNotes,
             });

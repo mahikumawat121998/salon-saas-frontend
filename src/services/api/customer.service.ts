@@ -6,6 +6,7 @@ export interface CustomerItem {
   name: string;
   phone: string | null;
   email: string | null;
+  picture: string | null;
   notes: string | null;
   dob: string | null;
   gender: 'MALE' | 'FEMALE' | 'OTHER' | null;
@@ -42,6 +43,7 @@ export interface CreateCustomerDto {
   name: string;
   phone?: string;
   email?: string;
+  picture?: string;
   notes?: string;
   dob?: string;
   gender?: 'MALE' | 'FEMALE' | 'OTHER';

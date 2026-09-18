@@ -46,4 +46,9 @@ export const staffApiService = {
     const response = await axiosClient.put(`/staff/${staffId}/schedules`, { schedules });
     return response.data;
   },
+
+  async createLeave(staffId: string, data: { reason: string, startAt: string, endAt: string }): Promise<any> {
+    const response = await axiosClient.post(`/staff/${staffId}/leaves`, data);
+    return response.data.data;
+  },
 };

@@ -54,6 +54,7 @@ import { AuthGuard } from '@/shared/components/auth/AuthGuard';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Avatar } from '@/shared/ui/Avatar';
+import { ImageUpload } from '@/shared/components/ui/ImageUpload';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customerApiService, CustomerItem, CreateCustomerDto, UpdateCustomerDto } from '@/services/api/customer.service';
 import { TableRowSkeleton } from '@/shared/components/loaders';
@@ -119,6 +120,7 @@ export default function CustomersPage() {
     name: '',
     phone: '',
     email: '',
+    picture: '',
     notes: '',
     gender: undefined,
     dob: undefined,
@@ -132,6 +134,7 @@ export default function CustomersPage() {
       name: '',
       phone: '',
       email: '',
+      picture: '',
       notes: '',
       gender: undefined,
       dob: undefined,
@@ -153,6 +156,7 @@ export default function CustomersPage() {
       name: customer.name,
       phone: customer.phone || '',
       email: customer.email || '',
+      picture: customer.picture || '',
       notes: customer.notes || '',
       gender: customer.gender || undefined,
       dob: customer.dob || undefined,
@@ -404,7 +408,7 @@ export default function CustomersPage() {
                         {/* Customer Info */}
                         <TableCell onClick={() => handleOpenDetails(customer)}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                            <Avatar name={customer.name} sx={{ width: 34, height: 34 }} />
+                            <Avatar name={customer.name} src={customer.picture || undefined} sx={{ width: 34, height: 34 }} />
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                               <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.84rem', color: 'text.primary' }}>
                                 {customer.name}
@@ -555,7 +559,7 @@ export default function CustomersPage() {
             {/* Header Summary */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Avatar name={selectedCustomer?.name || ''} sx={{ width: 52, height: 52 }} />
+                <Avatar name={selectedCustomer?.name || ''} src={selectedCustomer?.picture || undefined} sx={{ width: 52, height: 52 }} />
                 <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 800, fontSize: '1rem', color: 'text.primary' }}>
@@ -853,6 +857,14 @@ export default function CustomersPage() {
               </Typography>
 
               <Grid container spacing={2} sx={{ mb: 2 }}>
+                <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                  <ImageUpload 
+                    value={formData.picture} 
+                    onChange={(url) => setFormData({ ...formData, picture: url })} 
+                    placeholder="Upload Picture"
+                    folderPath="customers"
+                  />
+                </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: 'text.secondary' }}>
                     Full Name *
@@ -953,6 +965,14 @@ export default function CustomersPage() {
               </Typography>
 
               <Grid container spacing={2} sx={{ mb: 2 }}>
+                <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                  <ImageUpload 
+                    value={formData.picture} 
+                    onChange={(url) => setFormData({ ...formData, picture: url })} 
+                    placeholder="Upload Picture"
+                    folderPath="customers"
+                  />
+                </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8, color: 'text.secondary' }}>
                     Full Name *

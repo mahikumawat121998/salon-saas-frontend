@@ -22,7 +22,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leaveApiService, StaffLeave } from '@/services/api/leave.service';
 import { staffApiService } from '@/services/api/staff.service';
-import { Plus, Trash2, CalendarHeart } from 'lucide-react';
+import { Plus, Trash2, CalendarHeart, Check, X } from 'lucide-react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -36,6 +36,7 @@ export default function LeaveManagementPage() {
   const [startAt, setStartAt] = useState('');
   const [endAt, setEndAt] = useState('');
   const [reason, setReason] = useState('');
+  const [type, setType] = useState('CASUAL');
 
   const { data: leaves = [], isLoading } = useQuery({
     queryKey: ['leaves'],
@@ -53,6 +54,7 @@ export default function LeaveManagementPage() {
         startAt: new Date(startAt).toISOString(),
         endAt: new Date(endAt).toISOString(),
         reason,
+        type,
       }),
     onSuccess: () => {
       toast.success('Leave requested successfully');
@@ -61,7 +63,7 @@ export default function LeaveManagementPage() {
       resetForm();
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Failed to create leave');
+      toast.error(err.message || err.response?.data?.message || 'Failed to create leave');
     },
   });
 
@@ -72,7 +74,19 @@ export default function LeaveManagementPage() {
       queryClient.invalidateQueries({ queryKey: ['leaves'] });
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Failed to delete leave');
+      toast.error(err.message || err.response?.data?.message || 'Failed to delete leave');
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status, adminNote }: { id: string, status: 'APPROVED' | 'REJECTED' | 'CANCELLED', adminNote?: string }) => 
+      leaveApiService.updateLeaveStatus(id, status, adminNote),
+    onSuccess: (_, variables) => {
+      toast.success(`Leave ${variables.status.toLowerCase()} successfully`);
+      queryClient.invalidateQueries({ queryKey: ['leaves'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || err.response?.data?.message || 'Failed to update leave status');
     },
   });
 
@@ -81,6 +95,7 @@ export default function LeaveManagementPage() {
     setStartAt('');
     setEndAt('');
     setReason('');
+    setType('CASUAL');
   };
 
   const columns: GridColDef<StaffLeave>[] = [
@@ -124,45 +139,77 @@ export default function LeaveManagementPage() {
       flex: 1.5,
     },
     {
+      field: 'type',
+      headerName: 'Type',
+      flex: 0.8,
+      renderCell: (params) => {
+        const typeMap: any = {
+          CASUAL: { color: 'primary' },
+          SICK: { color: 'error' },
+          UNPAID: { color: 'default' },
+          EARNED: { color: 'success' }
+        };
+        const conf = typeMap[params.row.type] || { color: 'default' };
+        return <Chip label={params.row.type} color={conf.color} size="small" variant="outlined" />;
+      }
+    },
+    {
       field: 'status',
       headerName: 'Status',
       flex: 0.8,
       renderCell: (params) => {
-        // Dummy status calculation based on dates for now
-        const now = new Date();
-        const start = new Date(params.row.startAt);
-        const end = new Date(params.row.endAt);
-        let status = 'APPROVED';
-        let color = 'success';
-        
-        if (start > now) {
-          status = 'UPCOMING';
-          color = 'info';
-        } else if (now >= start && now <= end) {
-          status = 'ON LEAVE';
-          color = 'warning';
-        }
-
-        return <Chip label={status} color={color as any} size="small" variant="filled" />;
+        const statusMap: any = {
+          PENDING: { color: 'warning' },
+          APPROVED: { color: 'success' },
+          REJECTED: { color: 'error' },
+          CANCELLED: { color: 'default' },
+        };
+        const conf = statusMap[params.row.status] || { color: 'default' };
+        return <Chip label={params.row.status} color={conf.color} size="small" variant="filled" />;
       },
     },
     {
       field: 'actions',
       headerName: 'Actions',
-      flex: 0.5,
+      flex: 1.2,
       sortable: false,
       renderCell: (params) => (
-        <IconButton
-          color="error"
-          size="small"
-          onClick={() => {
-            if (confirm('Are you sure you want to delete this leave record?')) {
-              deleteMutation.mutate(params.row.id);
-            }
-          }}
-        >
-          <Trash2 size={18} />
-        </IconButton>
+        <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+          {params.row.status === 'PENDING' && (
+            <>
+              <IconButton
+                color="success"
+                size="small"
+                onClick={() => updateStatusMutation.mutate({ id: params.row.id, status: 'APPROVED' })}
+              >
+                <Check size={18} />
+              </IconButton>
+              <IconButton
+                color="error"
+                size="small"
+                onClick={() => {
+                  const note = prompt("Reason for rejection (optional):");
+                  if (note !== null) {
+                    updateStatusMutation.mutate({ id: params.row.id, status: 'REJECTED', adminNote: note });
+                  }
+                }}
+              >
+                <X size={18} />
+              </IconButton>
+            </>
+          )}
+          <IconButton
+            color="error"
+            size="small"
+            onClick={() => {
+              if (confirm('Are you sure you want to delete this leave record?')) {
+                deleteMutation.mutate(params.row.id);
+              }
+            }}
+          >
+            <Trash2 size={18} />
+          </IconButton>
+        </Stack>
       ),
     },
   ];
@@ -244,6 +291,20 @@ export default function LeaveManagementPage() {
               onChange={(e) => setEndAt(e.target.value)}
             />
           </Stack>
+
+          <TextField
+            select
+            label="Leave Type"
+            fullWidth
+            required
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
+            <MenuItem value="CASUAL">Casual Leave</MenuItem>
+            <MenuItem value="SICK">Sick Leave</MenuItem>
+            <MenuItem value="EARNED">Earned Leave</MenuItem>
+            <MenuItem value="UNPAID">Unpaid Leave</MenuItem>
+          </TextField>
 
           <TextField
             label="Reason (Optional)"

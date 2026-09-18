@@ -55,6 +55,7 @@ import { inventoryApiService, InventoryProduct } from '@/services/api/inventory.
 import { QUERY_KEYS } from '@/config/query-keys';
 import { TableRowSkeleton } from '@/shared/components/loaders';
 import { showToast } from '@/shared/components/Toast';
+import { env } from '@/config/env';
 
 export default function InventoryPage() {
   const queryClient = useQueryClient();
@@ -480,18 +481,32 @@ export default function InventoryPage() {
                             {/* Product Info */}
                             <TableCell sx={{ borderBottom: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid #F1F5F9') }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                <Box
-                                  component="img"
-                                  src={prod.image}
-                                  alt={prod.name}
-                                  sx={{
+                                {prod.image ? (
+                                  <Box
+                                    component="img"
+                                    src={prod.image.startsWith('http') ? prod.image : `${env.apiUrl}${prod.image}`}
+                                    alt={prod.name}
+                                    sx={{
+                                      width: 38,
+                                      height: 38,
+                                      borderRadius: '10px',
+                                      objectFit: 'cover',
+                                      border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #E5E7EB'),
+                                    }}
+                                  />
+                                ) : (
+                                  <Box sx={{
                                     width: 38,
                                     height: 38,
                                     borderRadius: '10px',
-                                    objectFit: 'cover',
-                                    border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #E5E7EB'),
-                                  }}
-                                />
+                                    backgroundColor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(124, 58, 237, 0.18)' : '#F3E8FF'),
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}>
+                                    <Package size={20} color="#A78BFA" />
+                                  </Box>
+                                )}
                                 <Box>
                                   <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.84rem', color: 'text.primary' }}>
                                     {prod.name}
@@ -662,21 +677,38 @@ export default function InventoryPage() {
 
                 {/* Product Image & Title */}
                 <Box sx={{ textAlign: 'center', mb: 2.5 }}>
-                  <Box
-                    component="img"
-                    src={selectedProduct.image}
-                    alt={selectedProduct.name}
-                    sx={{
+                  {selectedProduct.image ? (
+                    <Box
+                      component="img"
+                      src={selectedProduct.image.startsWith('http') ? selectedProduct.image : `${env.apiUrl}${selectedProduct.image}`}
+                      alt={selectedProduct.name}
+                      sx={{
+                        width: 120,
+                        height: 120,
+                        borderRadius: '16px',
+                        objectFit: 'cover',
+                        mx: 'auto',
+                        mb: 2,
+                        border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #E5E7EB'),
+                        boxShadow: '0px 4px 14px rgba(0,0,0,0.06)',
+                      }}
+                    />
+                  ) : (
+                    <Box sx={{
                       width: 120,
                       height: 120,
                       borderRadius: '16px',
-                      objectFit: 'cover',
+                      backgroundColor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(124, 58, 237, 0.18)' : '#F3E8FF'),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       mx: 'auto',
                       mb: 2,
                       border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #E5E7EB'),
-                      boxShadow: '0px 4px 14px rgba(0,0,0,0.06)',
-                    }}
-                  />
+                    }}>
+                      <Package size={48} color="#A78BFA" />
+                    </Box>
+                  )}
                   <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.05rem', color: 'text.primary' }}>
                     {selectedProduct.name}
                   </Typography>

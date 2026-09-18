@@ -33,6 +33,7 @@ export const ROUTES = {
     staff: {
       root: '/dashboard/staff',
       new: '/dashboard/staff/new',
+      attendance: '/dashboard/staff/attendance',
       leaves: '/dashboard/staff/leaves',
       breaks: '/dashboard/staff/breaks',
       services: '/dashboard/staff/services',

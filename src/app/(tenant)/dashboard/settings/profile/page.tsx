@@ -127,7 +127,7 @@ import { useTenantStore } from '@/core/stores/tenant.store';
 import { useAuthStore } from '@/core/stores/auth.store';
 
 export default function SettingsPage() {
-  const { activeTenant } = useTenantStore();
+  const { activeTenant, setActiveTenant } = useTenantStore();
   const user = useAuthStore((s) => s.user);
 
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -139,6 +139,7 @@ export default function SettingsPage() {
     staffHours: true,
   });
   const [logoUrl, setLogoUrl] = useState<string>('');
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string>('');
 
   const [businessHours, setBusinessHours] = useState([
     { dayOfWeek: 1, dayName: 'Monday', openTime: '09:00', closeTime: '21:00', isOpen: true },
@@ -441,7 +442,12 @@ export default function SettingsPage() {
                     <Box sx={{ width: 72, height: 72, flexShrink: 0, boxShadow: '0px 4px 12px rgba(0,0,0,0.15)', borderRadius: '16px', overflow: 'hidden' }}>
                       <ImageUpload 
                         value={logoUrl || activeTenant?.logoUrl} 
-                        onChange={setLogoUrl} 
+                        onChange={(url) => {
+                          setLogoUrl(url);
+                          if (activeTenant) {
+                            setActiveTenant({ ...activeTenant, logoUrl: url });
+                          }
+                        }} 
                         className="w-full h-full" 
                         folderPath={`tenants/${activeTenant?.id || 'unknown'}/salon/logo`}
                         placeholder="Logo"

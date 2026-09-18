@@ -89,6 +89,11 @@ export const appointmentApiService = {
 
   async updateAppointmentStatus(id: string, data: UpdateAppointmentStatusDto): Promise<AppointmentItem> {
     const response = await axiosClient.patch(`/appointments/${id}/status`, data);
-    return (response.data as any).data || response.data;
+    return response.data.data || response.data;
+  },
+
+  async bulkResolveAppointments(data: { updates: { appointmentId: string; action: 'REASSIGN' | 'CANCEL'; newStaffId?: string }[] }): Promise<any> {
+    const response = await axiosClient.post('/appointments/bulk-resolve', data);
+    return response.data.data || response.data;
   },
 };

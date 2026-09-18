@@ -60,6 +60,7 @@ import { QUERY_KEYS } from '@/config/query-keys';
 
 import { staffApiService } from '@/services/api/staff.service';
 import { TableRowSkeleton } from '@/shared/components/loaders';
+import { ImageUpload } from '@/shared/components/ui/ImageUpload';
 
 export default function ServicesPage() {
   const queryClient = useQueryClient();
@@ -71,6 +72,7 @@ export default function ServicesPage() {
   const [openAddModal, setOpenAddModal] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [formName, setFormName] = useState('');
+  const [formImage, setFormImage] = useState('');
   const [formCategoryId, setFormCategoryId] = useState('');
   const [formDuration, setFormDuration] = useState<number>(30);
   const [formPrice, setFormPrice] = useState<number>(0);
@@ -156,6 +158,7 @@ export default function ServicesPage() {
   const handleOpenAddService = () => {
     setEditingServiceId(null);
     setFormName('');
+    setFormImage('');
     setFormCategoryId(categories[0]?.id || '');
     setFormDuration(30);
     setFormPrice(0);
@@ -169,6 +172,7 @@ export default function ServicesPage() {
   const handleOpenEditService = (service: ServiceItem) => {
     setEditingServiceId(service.id);
     setFormName(service.name);
+    setFormImage(service.image || '');
     setFormCategoryId(service.categoryId);
     setFormDuration(service.durationMinutes);
     setFormPrice(service.price);
@@ -182,6 +186,7 @@ export default function ServicesPage() {
   const handleSaveService = () => {
     const data: CreateServiceDto = {
       name: formName,
+      image: formImage,
       categoryId: formCategoryId,
       durationMinutes: Number(formDuration),
       price: Number(formPrice),
@@ -498,13 +503,14 @@ export default function ServicesPage() {
                 <Table>
                   <TableHead sx={{ backgroundColor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#F8FAFC') }}>
                     <TableRow>
+                      <TableCell sx={{ fontWeight: 700, color: 'text.secondary', width: '60px' }}>S.No</TableCell>
                       <TableCell sx={{ fontWeight: 700, color: 'text.secondary' }}>Category Name</TableCell>
                       <TableCell sx={{ fontWeight: 700, color: 'text.secondary' }}>Total Services</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 700, color: 'text.secondary' }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {categories.map((cat) => {
+                    {categories.map((cat, index) => {
                       const count = services.filter(s => s.categoryId === cat.id).length;
                       return (
                         <TableRow
@@ -521,6 +527,7 @@ export default function ServicesPage() {
                             },
                           }}
                         >
+                          <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>{index + 1}</TableCell>
                           <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>{cat.name}</TableCell>
                           <TableCell sx={{ color: 'text.secondary' }}>{count} services</TableCell>
                           <TableCell align="right">
@@ -550,6 +557,14 @@ export default function ServicesPage() {
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, display: 'block' }}>Service Name</Typography>
                 <TextField fullWidth size="small" placeholder="e.g. Premium Haircut" value={formName} onChange={(e) => setFormName(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, display: 'block' }}>Service Image</Typography>
+                <ImageUpload 
+                  value={formImage} 
+                  onChange={setFormImage} 
+                  folderPath="services"
+                />
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, display: 'block' }}>Category</Typography>

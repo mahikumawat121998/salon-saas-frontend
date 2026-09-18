@@ -33,10 +33,10 @@ export interface StaffAttendance {
   workingHours: number;
   overtimeHours: number;
   breaks: StaffAttendanceBreak[];
-  staff?: {
+  staff: {
     id: string;
     name: string;
-    email?: string;
+    profilePicture: string | null;
   };
 }
 
@@ -51,29 +51,27 @@ class AttendanceApiService {
     return res.data.data;
   }
 
-  async getDailyAttendance(date?: string): Promise<StaffAttendance[]> {
+  async getDailyAttendance(date?: string): Promise<any[]> {
     const params = date ? { date } : {};
-    const res = await axiosClient.get<ApiResponse<StaffAttendance[]>>('/attendance', { params });
+    const res = await axiosClient.get<ApiResponse<any[]>>('/staff/attendance', { params });
     return res.data.data;
   }
 
-  async clockIn(staffId: string): Promise<StaffAttendance> {
-    const res = await axiosClient.post<ApiResponse<StaffAttendance>>('/attendance/clock-in', { staffId });
+  async clockIn(staffId: string, date: string, clockInTime?: string): Promise<StaffAttendance> {
+    const isoDate = new Date(date).toISOString();
+    const res = await axiosClient.post<ApiResponse<StaffAttendance>>(`/staff/${staffId}/attendance/clock-in`, { date: isoDate, clockInTime });
     return res.data.data;
   }
 
-  async clockOut(staffId: string): Promise<StaffAttendance> {
-    const res = await axiosClient.post<ApiResponse<StaffAttendance>>('/attendance/clock-out', { staffId });
+  async clockOut(staffId: string, date: string, clockOutTime?: string): Promise<StaffAttendance> {
+    const isoDate = new Date(date).toISOString();
+    const res = await axiosClient.post<ApiResponse<StaffAttendance>>(`/staff/${staffId}/attendance/clock-out`, { date: isoDate, clockOutTime });
     return res.data.data;
   }
 
-  async startBreak(staffId: string, type: 'LUNCH' | 'SHORT' | 'OTHER'): Promise<StaffAttendanceBreak> {
-    const res = await axiosClient.post<ApiResponse<StaffAttendanceBreak>>('/attendance/break/start', { staffId, type });
-    return res.data.data;
-  }
-
-  async endBreak(staffId: string): Promise<StaffAttendanceBreak> {
-    const res = await axiosClient.post<ApiResponse<StaffAttendanceBreak>>('/attendance/break/end', { staffId });
+  async markAbsent(staffId: string, date: string, status: string = 'ABSENT'): Promise<StaffAttendance> {
+    const isoDate = new Date(date).toISOString();
+    const res = await axiosClient.post<ApiResponse<StaffAttendance>>(`/staff/${staffId}/attendance/mark-absent`, { date: isoDate, status });
     return res.data.data;
   }
 }

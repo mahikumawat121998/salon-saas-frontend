@@ -35,7 +35,10 @@ export default function AttendanceTerminalPage() {
   }, []);
 
   const clockInMutation = useMutation({
-    mutationFn: (id: string) => attendanceApiService.clockIn(id),
+    mutationFn: (id: string) => {
+      const today = new Date().toISOString().split('T')[0];
+      return attendanceApiService.clockIn(id, today);
+    },
     onSuccess: () => {
       toast.success('Clocked in successfully!');
       setStaffId('');
@@ -47,7 +50,10 @@ export default function AttendanceTerminalPage() {
   });
 
   const clockOutMutation = useMutation({
-    mutationFn: (id: string) => attendanceApiService.clockOut(id),
+    mutationFn: (id: string) => {
+      const today = new Date().toISOString().split('T')[0];
+      return attendanceApiService.clockOut(id, today);
+    },
     onSuccess: () => {
       toast.success('Clocked out successfully!');
       setStaffId('');

@@ -15,6 +15,7 @@ export interface ServiceItem {
   tenantId: string;
   categoryId: string;
   name: string;
+  image?: string;
   durationMinutes: number;
   price: number;
   tax: number | null;
@@ -31,6 +32,7 @@ export interface CreateCategoryDto {
 export interface CreateServiceDto {
   categoryId: string;
   name: string;
+  image?: string;
   durationMinutes: number;
   price: number;
   tax?: number;

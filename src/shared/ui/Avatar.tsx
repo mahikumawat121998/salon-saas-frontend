@@ -4,6 +4,7 @@ import MuiAvatar, { AvatarProps as MuiAvatarProps } from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import React from 'react';
+import { env } from '@/config/env';
 
 export interface AvatarProps extends MuiAvatarProps {
   name?: string;
@@ -25,9 +26,11 @@ const statusColors = {
 };
 
 export function Avatar({ name, status, src, children, alt, sx, ...props }: AvatarProps) {
+  const displaySrc = src ? (src.startsWith('http') ? src : `${env.apiUrl}${src}`) : undefined;
+
   const avatarContent = (
     <MuiAvatar
-      src={src}
+      src={displaySrc}
       alt={alt || name}
       sx={{
         fontWeight: 600,

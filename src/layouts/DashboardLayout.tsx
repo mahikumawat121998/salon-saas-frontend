@@ -4,8 +4,10 @@ import { LAYOUT } from '@/config/layout';
 import { MAIN_NAVIGATION, NavItem } from '@/config/navigation';
 import { useAuth } from '@/providers/AuthProvider';
 import { useColorMode } from '@/providers/ThemeProvider';
+import { env } from '@/config/env';
 import { Avatar } from '@/shared/ui/Avatar';
 import { Search } from '@/shared/ui/Search';
+import { useTenantStore } from '@/core/stores/tenant.store';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -74,10 +76,11 @@ export interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const pathname = usePathname();
   const { mode, toggleColorMode } = useColorMode();
   const { user, logout } = useAuth();
+  const { activeTenant } = useTenantStore();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -203,7 +206,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           gap: 1.5,
         }}
       >
-        <Avatar name={user?.name || 'Admin User'} status="online" sx={{ width: 36, height: 36 }} />
+        <Avatar 
+          name={user?.name || 'Admin User'} 
+          src={activeTenant?.logoUrl ? (activeTenant.logoUrl.startsWith('http') ? activeTenant.logoUrl : `${env.apiUrl}${activeTenant.logoUrl}`) : undefined}
+          status="online" 
+          sx={{ width: 36, height: 36 }} 
+        />
         <Box sx={{ overflow: 'hidden', flexGrow: 1 }}>
           <Typography variant="subtitle2" noWrap sx={{ fontWeight: 600 }}>
             {user?.name || 'Admin User'}
@@ -281,60 +289,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </Box>
       )}
 
-      {user?.subscriptionStatus === 'TRIALING' && (
-        <Box
-          sx={{
-            backgroundColor: user.isTrialExpired ? '#EF4444' : '#F59E0B',
-            color: '#FFFFFF',
-            py: 0.8,
-            px: 3,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            fontSize: '0.8125rem',
-            fontWeight: 700,
-            zIndex: (t) => t.zIndex.drawer + 2,
-            position: 'fixed',
-            top: impersonatingData ? 34 : 0,
-            left: 0,
-            right: 0,
-          }}
-        >
-          <Typography variant="caption" sx={{ fontWeight: 800, fontSize: '0.8125rem' }}>
-            {user.isTrialExpired
-              ? '⚠️ Your 30-day free trial has expired. Access to premium modules is now locked.'
-              : `⏳ You have ${Math.max(0, Math.ceil((new Date(user.trialEndsAt || '').getTime() - Date.now()) / 86400000))} days left in your free trial.`}
-          </Typography>
-          <Button
-            size="small"
-            variant="contained"
-            component={Link}
-            href="/dashboard/settings/billing"
-            sx={{
-              backgroundColor: '#FFFFFF',
-              color: user.isTrialExpired ? '#EF4444' : '#F59E0B',
-              fontWeight: 800,
-              fontSize: '0.72rem',
-              py: 0.2,
-              px: 1.5,
-              textTransform: 'none',
-              borderRadius: '6px',
-              '&:hover': { backgroundColor: '#F8FAFC' },
-            }}
-          >
-            Upgrade Now
-          </Button>
-        </Box>
-      )}
+
 
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
-          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
-          ml: { md: `${DRAWER_WIDTH}px` },
-          top: (impersonatingData ? 34 : 0) + (user?.subscriptionStatus === 'TRIALING' ? 34 : 0),
+          width: { lg: `calc(100% - ${DRAWER_WIDTH}px)` },
+          ml: { lg: `${DRAWER_WIDTH}px` },
+          top: impersonatingData ? 34 : 0,
           height: `${TOPBAR_HEIGHT}px`,
           justifyContent: 'center',
           backgroundColor: (t) =>
@@ -441,7 +404,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </IconButton>
 
             <IconButton onClick={handleUserMenuOpen} sx={{ p: 0.5 }}>
-              <Avatar name={user?.name || 'Rahul Mehta'} sx={{ width: 36, height: 36 }} />
+              <Avatar 
+                name={user?.name || 'Rahul Mehta'} 
+                src={activeTenant?.logoUrl ? (activeTenant.logoUrl.startsWith('http') ? activeTenant.logoUrl : `${env.apiUrl}${activeTenant.logoUrl}`) : undefined}
+                sx={{ width: 36, height: 36 }} 
+              />
             </IconButton>
 
             <Menu
@@ -471,7 +438,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </Toolbar>
       </AppBar>
 
-      <Box component="nav" sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}>
+      <Box component="nav" sx={{ width: { lg: DRAWER_WIDTH }, flexShrink: { lg: 0 } }}>
         {isMobile ? (
           <Drawer
             variant="temporary"
@@ -489,12 +456,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         ) : (
           <Drawer
             variant="permanent"
-            slotProps={{
-              paper: {
-                sx: {
-                  width: DRAWER_WIDTH,
-                  borderRight: (t) => `1px solid ${t.palette.divider}`,
-                },
+            sx={{
+              display: { xs: 'none', lg: 'block' },
+              '& .MuiDrawer-paper': {
+                width: DRAWER_WIDTH,
+                borderRight: (t) => `1px solid ${t.palette.divider}`,
               },
             }}
             open
@@ -509,9 +475,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 2.5, md: 3 },
-          width: { xs: '100%', md: `calc(100% - ${DRAWER_WIDTH}px)` },
+          width: { xs: '100%', lg: `calc(100% - ${DRAWER_WIDTH}px)` },
           minWidth: 0,
-          mt: `${(impersonatingData ? 34 : 0) + (user?.subscriptionStatus === 'TRIALING' ? 34 : 0) + TOPBAR_HEIGHT}px`,
+          mt: `${(impersonatingData ? 34 : 0) + TOPBAR_HEIGHT}px`,
           boxSizing: 'border-box',
         }}
       >

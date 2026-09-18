@@ -43,6 +43,7 @@ import { staffApiService, StaffItem } from '@/services/api/staff.service';
 import { QUERY_KEYS } from '@/config/query-keys';
 import { showToast } from '@/shared/components/Toast';
 import { Avatar } from '@/shared/ui/Avatar';
+import { env } from '@/config/env';
 
 // Status badge styling helper
 const getStatusConfig = (status: string) => {
@@ -66,8 +67,21 @@ const getStatusConfig = (status: string) => {
 export default function CalendarPage() {
   const queryClient = useQueryClient();
 
+  // Helper to get local Date from appointment item
+  const getApptDate = (appt: AppointmentItem): Date | null => {
+    if (appt.startAt) return new Date(appt.startAt);
+    if (appt.appointmentDate) {
+      const parts = appt.appointmentDate.split('T')[0].split('-');
+      if (parts.length === 3) {
+        return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      }
+      return new Date(appt.appointmentDate);
+    }
+    return null;
+  };
+
   // Navigation & View State
-  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 8, 13)); // Sep 13, 2026
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [viewMode, setViewMode] = useState<'Day' | 'Week' | 'Month'>('Week');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -108,142 +122,53 @@ export default function CalendarPage() {
   // Stylists columns
   const stylists = useMemo(() => {
     if (staffList.length > 0) {
-      return staffList.slice(0, 4).map((s) => ({ id: s.id, name: s.name }));
+      return staffList.slice(0, 4).map((s) => ({ id: s.id, name: s.name, avatarUrl: s.profilePicture }));
     }
     return [
-      { id: 'stf_1', name: 'Alex Johnson' },
-      { id: 'stf_2', name: 'Sophia Martinez' },
-      { id: 'stf_3', name: 'Ryan Cooper' },
-      { id: 'stf_4', name: 'Olivia Rhye' },
+      { id: 'stf_1', name: 'Alex Johnson', avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80' },
+      { id: 'stf_2', name: 'Sophia Martinez', avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80' },
+      { id: 'stf_3', name: 'Ryan Cooper', avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80' },
+      { id: 'stf_4', name: 'Olivia Rhye', avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
     ];
   }, [staffList]);
 
-  // Combine API Appointments with fallback demo data if empty
+  // Strict API Appointments from DB (No fallback mock data)
   const allAppointments: AppointmentItem[] = useMemo(() => {
-    if (apiAppointments && apiAppointments.length > 0) {
-      return apiAppointments;
-    }
-    // Fallback live appointments mapped to today
-    return [
-      {
-        id: 'appt_1',
-        tenantId: 't1',
-        customerId: 'c1',
-        staffId: stylists[0]?.id || 'stf_1',
-        serviceId: 's1',
-        appointmentDate: '2026-09-13',
-        startAt: '2026-09-13T09:00:00',
-        endAt: '2026-09-13T09:45:00',
-        status: 'CONFIRMED',
-        source: 'ONLINE',
-        serviceName: 'Aromatherapy Haircut',
-        durationMinutes: 45,
-        price: 450,
-        customerNotes: 'Prefers organic shampoo and quiet session',
-        createdAt: '2026-09-10',
-        customer: { id: 'c1', name: 'John Doe', phone: '+91 98765 43214' },
-        staff: { id: stylists[0]?.id || 'stf_1', name: stylists[0]?.name || 'Alex Johnson' },
-      },
-      {
-        id: 'appt_2',
-        tenantId: 't1',
-        customerId: 'c2',
-        staffId: stylists[0]?.id || 'stf_1',
-        serviceId: 's2',
-        appointmentDate: '2026-09-13',
-        startAt: '2026-09-13T10:30:00',
-        endAt: '2026-09-13T11:10:00',
-        status: 'PENDING',
-        source: 'WALK_IN',
-        serviceName: 'Hair Spa & Treatment',
-        durationMinutes: 40,
-        price: 650,
-        createdAt: '2026-09-11',
-        customer: { id: 'c2', name: 'Michael Lee', phone: '+91 98765 43212' },
-        staff: { id: stylists[0]?.id || 'stf_1', name: stylists[0]?.name || 'Alex Johnson' },
-      },
-      {
-        id: 'appt_3',
-        tenantId: 't1',
-        customerId: 'c3',
-        staffId: stylists[1]?.id || 'stf_2',
-        serviceId: 's3',
-        appointmentDate: '2026-09-13',
-        startAt: '2026-09-13T09:00:00',
-        endAt: '2026-09-13T10:00:00',
-        status: 'IN_PROGRESS',
-        source: 'ONLINE',
-        serviceName: 'Hair Color & Highlights',
-        durationMinutes: 60,
-        price: 1200,
-        createdAt: '2026-09-12',
-        customer: { id: 'c3', name: 'Emma Watson', phone: '+91 98765 43213' },
-        staff: { id: stylists[1]?.id || 'stf_2', name: stylists[1]?.name || 'Sophia Martinez' },
-      },
-      {
-        id: 'appt_4',
-        tenantId: 't1',
-        customerId: 'c4',
-        staffId: stylists[1]?.id || 'stf_2',
-        serviceId: 's4',
-        appointmentDate: '2026-09-13',
-        startAt: '2026-09-13T10:00:00',
-        endAt: '2026-09-13T10:30:00',
-        status: 'CONFIRMED',
-        source: 'APP',
-        serviceName: 'Express Styling',
-        durationMinutes: 30,
-        price: 350,
-        createdAt: '2026-09-12',
-        customer: { id: 'c4', name: 'Sophia Miller', phone: '+91 98765 43211' },
-        staff: { id: stylists[1]?.id || 'stf_2', name: stylists[1]?.name || 'Sophia Martinez' },
-      },
-      {
-        id: 'appt_5',
-        tenantId: 't1',
-        customerId: 'c5',
-        staffId: stylists[2]?.id || 'stf_3',
-        serviceId: 's5',
-        appointmentDate: '2026-09-13',
-        startAt: '2026-09-13T09:30:00',
-        endAt: '2026-09-13T10:15:00',
-        status: 'CONFIRMED',
-        source: 'ADMIN',
-        serviceName: 'Beard Styling & Trim',
-        durationMinutes: 45,
-        price: 250,
-        createdAt: '2026-09-12',
-        customer: { id: 'c5', name: 'David Smith', phone: '+91 88888 88888' },
-        staff: { id: stylists[2]?.id || 'stf_3', name: stylists[2]?.name || 'Ryan Cooper' },
-      },
-      {
-        id: 'appt_6',
-        tenantId: 't1',
-        customerId: 'c6',
-        staffId: stylists[3]?.id || 'stf_4',
-        serviceId: 's6',
-        appointmentDate: '2026-09-13',
-        startAt: '2026-09-13T09:15:00',
-        endAt: '2026-09-13T10:00:00',
-        status: 'COMPLETED',
-        source: 'ONLINE',
-        serviceName: 'Organic Facial',
-        durationMinutes: 45,
-        price: 600,
-        createdAt: '2026-09-12',
-        customer: { id: 'c6', name: 'Olivia Brown', phone: '+91 98765 43214' },
-        staff: { id: stylists[3]?.id || 'stf_4', name: stylists[3]?.name || 'Olivia Rhye' },
-      },
-    ];
-  }, [apiAppointments, stylists]);
+    return apiAppointments || [];
+  }, [apiAppointments]);
 
-  // Filtered list for table
+  // Filtered list for grid and table based on status filter AND view date/range
   const filteredAppointments = useMemo(() => {
     return allAppointments.filter((a) => {
       if (selectedStatusFilter !== 'all' && a.status !== selectedStatusFilter) return false;
+
+      const apptDate = getApptDate(a);
+      if (!apptDate || isNaN(apptDate.getTime())) return true;
+
+      if (viewMode === 'Day') {
+        return (
+          apptDate.getFullYear() === currentDate.getFullYear() &&
+          apptDate.getMonth() === currentDate.getMonth() &&
+          apptDate.getDate() === currentDate.getDate()
+        );
+      } else if (viewMode === 'Week') {
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setHours(0, 0, 0, 0);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        return apptDate >= startOfWeek && apptDate <= endOfWeek;
+      } else if (viewMode === 'Month') {
+        return (
+          apptDate.getFullYear() === currentDate.getFullYear() &&
+          apptDate.getMonth() === currentDate.getMonth()
+        );
+      }
+
       return true;
     });
-  }, [allAppointments, selectedStatusFilter]);
+  }, [allAppointments, selectedStatusFilter, currentDate, viewMode]);
 
   // Date Navigation Handlers
   const handlePrevDate = () => {
@@ -262,46 +187,53 @@ export default function CalendarPage() {
     setCurrentDate(next);
   };
 
-  const handleToday = () => {
-    setCurrentDate(new Date(2026, 8, 13));
-  };
+  // Dynamic Grid Columns based on viewMode
+  const weekDays = useMemo(() => {
+    const days: { date: Date; label: string }[] = [];
+    const startOfWeek = new Date(currentDate);
+    const dayOfWeek = startOfWeek.getDay();
+    startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek); // Sun
+    startOfWeek.setHours(0, 0, 0, 0);
 
-  // Header Title Formatter
-  const formattedDateTitle = useMemo(() => {
-    if (viewMode === 'Day') {
-      return currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-    } else if (viewMode === 'Week') {
-      const endWeek = new Date(currentDate);
-      endWeek.setDate(endWeek.getDate() + 6);
-      const startStr = currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const endStr = endWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      return `${startStr} – ${endStr}`;
-    } else {
-      return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startOfWeek);
+      d.setDate(d.getDate() + i);
+      const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
+      days.push({ date: d, label });
     }
-  }, [currentDate, viewMode]);
+    return days;
+  }, [currentDate]);
 
-  // Time Slot Rows for Grid (9:00 AM to 8:00 PM)
-  const timeSlots = [
-    '09:00 AM',
-    '10:00 AM',
-    '11:00 AM',
-    '12:00 PM',
-    '01:00 PM',
-    '02:00 PM',
-    '03:00 PM',
-    '04:00 PM',
-    '05:00 PM',
-    '06:00 PM',
-    '07:00 PM',
-    '08:00 PM',
-  ];
+  const gridColumns = useMemo(() => {
+    if (viewMode === 'Week') {
+      return weekDays.map((wd, i) => ({ id: `day_${i}`, name: wd.label }));
+    }
+    // Day view (or fallback): Stylists columns
+    return stylists.length > 0
+      ? stylists
+      : [
+          { id: 'stf_1', name: 'Alex Johnson' },
+          { id: 'stf_2', name: 'Sophia Martinez' },
+          { id: 'stf_3', name: 'Ryan Cooper' },
+          { id: 'stf_4', name: 'Olivia Rhye' },
+        ];
+  }, [viewMode, weekDays, stylists]);
 
-  // Helper to map appointment to grid position
-  const getGridBlockPosition = (appt: AppointmentItem) => {
-    // Determine stylist index (0 to 3)
-    let idx = stylists.findIndex((s) => s.id === appt.staffId || s.name === appt.staff?.name);
-    if (idx === -1) idx = 0;
+  const getGridBlockPositionWithoutOverlap = (appt: AppointmentItem) => {
+    let colIdx = 0;
+    const apptDate = getApptDate(appt);
+
+    if (viewMode === 'Week' && apptDate && weekDays.length === 7) {
+      const startOfWeek = weekDays[0].date;
+      const apptDayStart = new Date(apptDate);
+      apptDayStart.setHours(0, 0, 0, 0);
+      const diffDays = Math.round((apptDayStart.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60 * 24));
+      colIdx = Math.max(0, Math.min(6, diffDays));
+    } else {
+      let idx = stylists.findIndex((s) => s.id === appt.staffId || s.name === appt.staff?.name);
+      if (idx === -1) idx = 0;
+      colIdx = idx;
+    }
 
     let hour = 9;
     let minutes = 0;
@@ -312,14 +244,88 @@ export default function CalendarPage() {
       minutes = dt.getMinutes();
     }
 
-    // Relative to 9 AM (hour 9)
     const totalMinFrom9 = Math.max(0, (hour - 9) * 60 + minutes);
     const topPx = Math.round((totalMinFrom9 / 60) * 65);
     const duration = appt.durationMinutes || 45;
     const heightPx = Math.max(45, Math.round((duration / 60) * 65));
 
-    return { idx, topPx, heightPx };
+    return { colIdx, topPx, heightPx };
   };
+
+  // Helper to map appointment to grid position and calculate overlap
+  const getGridBlockPosition = (appt: AppointmentItem, allFiltered: AppointmentItem[]) => {
+    let colIdx = 0;
+    const apptDate = getApptDate(appt);
+
+    if (viewMode === 'Week' && apptDate && weekDays.length === 7) {
+      const startOfWeek = weekDays[0].date;
+      const apptDayStart = new Date(apptDate);
+      apptDayStart.setHours(0, 0, 0, 0);
+      const diffDays = Math.round((apptDayStart.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60 * 24));
+      colIdx = Math.max(0, Math.min(6, diffDays));
+    } else {
+      let idx = stylists.findIndex((s) => s.id === appt.staffId || s.name === appt.staff?.name);
+      if (idx === -1) idx = 0;
+      colIdx = idx;
+    }
+
+    let hour = 9;
+    let minutes = 0;
+
+    if (appt.startAt) {
+      const dt = new Date(appt.startAt);
+      hour = dt.getHours();
+      minutes = dt.getMinutes();
+    }
+
+    const totalMinFrom9 = Math.max(0, (hour - 9) * 60 + minutes);
+    const topPx = Math.round((totalMinFrom9 / 60) * 65);
+    const duration = appt.durationMinutes || 45;
+    const heightPx = Math.max(45, Math.round((duration / 60) * 65));
+
+    // Overlap sub-column calculation within the same column
+    const sameColAppts = allFiltered.filter((other) => {
+      const otherPos = getGridBlockPositionWithoutOverlap(other);
+      if (otherPos.colIdx !== colIdx) return false;
+      const otherTop = otherPos.topPx;
+      const otherBottom = otherTop + otherPos.heightPx;
+      const currentBottom = topPx + heightPx;
+      return topPx < otherBottom && currentBottom > otherTop;
+    });
+
+    const subTotal = sameColAppts.length || 1;
+    const subIdx = sameColAppts.findIndex((other) => other.id === appt.id);
+
+    return { colIdx, topPx, heightPx, subIdx: Math.max(0, subIdx), subTotal };
+  };
+
+  const handleToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  const formattedDateTitle = useMemo(() => {
+    if (viewMode === 'Day') {
+      return currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    if (viewMode === 'Week') {
+      const start = new Date(currentDate);
+      const day = start.getDay();
+      start.setDate(start.getDate() - day);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      
+      const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `${startStr} - ${endStr}`;
+    }
+    return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }, [currentDate, viewMode]);
+
+  const timeSlots = [
+    '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+    '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM',
+    '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM'
+  ];
 
   const handleOpenApptDetails = (appt: AppointmentItem) => {
     setSelectedAppt(appt);
@@ -443,7 +449,7 @@ export default function CalendarPage() {
 
         {/* Main Section: Interactive Resource Grid (Left 67%) & Appointments Table (Right 33%) */}
         <Grid container spacing={3}>
-          {/* Left Column: Stylist Resource Grid */}
+          {/* Left Column: Resource Grid */}
           <Grid size={{ xs: 12, lg: 8, xl: 8 }}>
             <Card
               sx={{
@@ -455,11 +461,11 @@ export default function CalendarPage() {
               }}
             >
               <Box sx={{ minWidth: 600, position: 'relative' }}>
-                {/* Header Stylists Columns */}
+                {/* Header Columns */}
                 <Box
                   sx={{
                     display: 'grid',
-                    gridTemplateColumns: `70px repeat(${stylists.length}, 1fr)`,
+                    gridTemplateColumns: `70px repeat(${gridColumns.length}, 1fr)`,
                     borderBottom: (t) => (t.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #E5E7EB'),
                     pb: 1.5,
                     mb: 1.5,
@@ -468,10 +474,19 @@ export default function CalendarPage() {
                   <Typography variant="caption" align="center" sx={{ fontWeight: 700, color: 'text.secondary' }}>
                     Time
                   </Typography>
-                  {stylists.map((stf) => (
-                    <Typography key={stf.id} variant="subtitle2" align="center" sx={{ fontWeight: 800, color: 'text.primary' }}>
-                      {stf.name}
-                    </Typography>
+                  {gridColumns.map((col: any) => (
+                    <Box key={col.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                      {viewMode !== 'Week' && (
+                        <Avatar 
+                          name={col.name} 
+                          src={col.avatarUrl ? (col.avatarUrl.startsWith('http') ? col.avatarUrl : `${env.apiUrl}${col.avatarUrl}`) : undefined} 
+                          sx={{ width: 32, height: 32, mb: 0.5 }} 
+                        />
+                      )}
+                      <Typography variant="subtitle2" align="center" sx={{ fontWeight: 800, color: 'text.primary' }}>
+                        {col.name}
+                      </Typography>
+                    </Box>
                   ))}
                 </Box>
 
@@ -483,7 +498,7 @@ export default function CalendarPage() {
                       key={idx}
                       sx={{
                         display: 'grid',
-                        gridTemplateColumns: `70px repeat(${stylists.length}, 1fr)`,
+                        gridTemplateColumns: `70px repeat(${gridColumns.length}, 1fr)`,
                         height: 65,
                         borderBottom: (t) => (t.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid #F3F4F6'),
                         alignItems: 'flex-start',
@@ -492,18 +507,20 @@ export default function CalendarPage() {
                       <Typography variant="caption" sx={{ fontWeight: 600, pt: 0.5, color: 'text.secondary', fontSize: '0.72rem' }}>
                         {time}
                       </Typography>
-                      {stylists.map((stf) => (
-                        <Box key={stf.id} sx={{ borderLeft: (t) => (t.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid #F3F4F6'), height: '100%' }} />
+                      {gridColumns.map((col) => (
+                        <Box key={col.id} sx={{ borderLeft: (t) => (t.palette.mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid #F3F4F6'), height: '100%' }} />
                       ))}
                     </Box>
                   ))}
 
                   {/* Live Rendered Appointment Blocks */}
                   {filteredAppointments.map((appt) => {
-                    const { idx: colIdx, topPx, heightPx } = getGridBlockPosition(appt);
-                    const numCols = stylists.length || 4;
-                    const leftCalc = `calc(70px + (100% - 70px) * ${colIdx} / ${numCols} + 4px)`;
-                    const widthCalc = `calc((100% - 70px) / ${numCols} - 8px)`;
+                    const { colIdx, topPx, heightPx, subIdx, subTotal } = getGridBlockPosition(appt, filteredAppointments);
+                    const numCols = gridColumns.length || 1;
+                    
+                    const colWidthCalc = `((100% - 70px) / ${numCols})`;
+                    const leftCalc = `calc(70px + ${colWidthCalc} * ${colIdx} + ${colWidthCalc} * ${subIdx} / ${subTotal} + 2px)`;
+                    const widthCalc = `calc(${colWidthCalc} / ${subTotal} - 4px)`;
                     const cfg = getStatusConfig(appt.status);
 
                     const customerName = appt.customer?.name || 'Customer';
@@ -521,17 +538,20 @@ export default function CalendarPage() {
                           left: leftCalc,
                           width: widthCalc,
                           height: `${heightPx}px`,
-                          backgroundColor: (t) => (t.palette.mode === 'dark' ? `${cfg.color}22` : cfg.bg),
-                          border: (t) => (t.palette.mode === 'dark' ? `1px solid ${cfg.color}66` : `1px solid ${cfg.border}`),
+                          backgroundColor: (t) => (t.palette.mode === 'dark' ? `${cfg.color}33` : cfg.bg),
+                          border: (t) => (t.palette.mode === 'dark' ? `1px solid ${cfg.color}AA` : `1px solid ${cfg.border}`),
                           borderLeft: `4px solid ${cfg.color}`,
-                          borderRadius: '10px',
-                          p: 1,
-                          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.12)',
+                          borderRadius: '8px',
+                          p: 0.8,
+                          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)',
                           cursor: 'pointer',
+                          zIndex: 10 + subIdx,
+                          overflow: 'hidden',
                           transition: 'transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
                           '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.25)',
+                            transform: 'scale(1.02)',
+                            zIndex: 99,
+                            boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.4)',
                           },
                         }}
                       >

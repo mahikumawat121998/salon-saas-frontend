@@ -57,11 +57,13 @@ import {
   Check,
   Scissors,
   ShieldCheck,
+  CheckSquare,
 } from 'lucide-react';
 
 import { TableRowSkeleton } from '@/shared/components/loaders';
 import { AuthGuard } from '@/shared/components/auth/AuthGuard';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
+import { ResolveConflictsModal } from '@/shared/components/modals/ResolveConflictsModal';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Avatar } from '@/shared/ui/Avatar';
 import { ImageUpload } from '@/shared/components/ui/ImageUpload';
@@ -308,9 +310,9 @@ export default function StaffPage() {
       setIsLoadingStaff(true);
       const data = await staffApiService.getStaff();
       if (data && data.length > 0) {
-        const mapped: StaffItem[] = data.map((s, idx) => ({
+        const mapped: StaffItem[] = data.map((s) => ({
           id: s.id,
-          empId: `EMP-${1001 + idx}`,
+          empId: `EMP-${s.id.substring(0, 4).toUpperCase()}`,
           name: s.name,
           role: 'Stylist',
           department: 'Hair Services',
@@ -407,6 +409,10 @@ export default function StaffPage() {
   const [isAddBreakOpen, setIsAddBreakOpen] = useState<boolean>(false);
   const [isAddLeaveOpen, setIsAddLeaveOpen] = useState<boolean>(false);
   const [isAssignScheduleOpen, setIsAssignScheduleOpen] = useState<boolean>(false);
+  
+  const [isResolveConflictsOpen, setIsResolveConflictsOpen] = useState<boolean>(false);
+  const [overlappingAppointments, setOverlappingAppointments] = useState<any[]>([]);
+  const [leaveData, setLeaveData] = useState({ type: 'casual', startAt: '', endAt: '', reason: '' });
 
   // Staff Weekly Working Timetable state
   const [weeklySchedule, setWeeklySchedule] = useState([
@@ -481,6 +487,7 @@ export default function StaffPage() {
     }
 
     try {
+      setIsSaving(true);
       // 3. Send API update to NestJS backend
       if (selectedStaff?.id) {
         const payload = weeklySchedule.map((s) => ({
@@ -513,6 +520,38 @@ export default function StaffPage() {
         'Schedule Update Failed',
         Array.isArray(msg) ? msg.join(', ') : msg
       );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAddLeave = async () => {
+    if (!leaveData.startAt || !leaveData.endAt || !leaveData.reason) {
+      showToast.error('Missing Fields', 'Please fill all required fields.');
+      return;
+    }
+    
+    try {
+      setIsSaving(true);
+      const result = await staffApiService.createLeave(selectedStaff.id, {
+        startAt: new Date(leaveData.startAt).toISOString(),
+        endAt: new Date(leaveData.endAt).toISOString(),
+        reason: leaveData.reason,
+      });
+      
+      setIsAddLeaveOpen(false);
+      setLeaveData({ type: 'casual', startAt: '', endAt: '', reason: '' });
+      
+      if (result.overlappingAppointments && result.overlappingAppointments.length > 0) {
+        setOverlappingAppointments(result.overlappingAppointments);
+        setIsResolveConflictsOpen(true);
+      } else {
+        showToast.success('Leave Added', 'Staff leave has been successfully recorded.');
+      }
+    } catch (err: any) {
+      showToast.error('Failed to add leave', err?.response?.data?.message || 'Please check the dates and try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -591,6 +630,16 @@ export default function StaffPage() {
             />
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+              <Button
+                component={Link}
+                href={ROUTES.dashboard.staff.attendance}
+                variant="outlined"
+                startIcon={<CheckSquare size={16} />}
+                sx={{ borderRadius: '12px', borderColor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.15)' : '#E5E7EB'), color: '#7C3AED', fontWeight: 700, fontSize: '0.84rem', py: 0.9, px: 2, textTransform: 'none' }}
+              >
+                Attendance Tracker
+              </Button>
+
               <Button
                 component={Link}
                 href={ROUTES.dashboard.staff.leaves}
@@ -1097,8 +1146,8 @@ export default function StaffPage() {
                 <Card sx={{ borderRadius: '14px', border: '1px solid #F3F4F6', p: 2 }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     {weeklySchedule.map((item) => (
-                      <Box key={item.dayOfWeek} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.2, borderRadius: '10px', backgroundColor: item.isWorking ? '#FAFAFC' : '#FEF2F2' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 100, color: item.isWorking ? '#111827' : '#DC2626' }}>
+                      <Box key={item.dayOfWeek} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.2, borderRadius: '10px', backgroundColor: (theme) => item.isWorking ? (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#FAFAFC') : (theme.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.1)' : '#FEF2F2') }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 100, color: (theme) => item.isWorking ? 'text.primary' : (theme.palette.mode === 'dark' ? '#FCA5A5' : '#DC2626') }}>
                           {item.dayName}
                         </Typography>
                         {item.isWorking ? (
@@ -1208,7 +1257,7 @@ export default function StaffPage() {
                   { name: 'Highlights', duration: '120 min', price: '₹2,000', checked: false },
                   { name: 'Keratin Treatment', duration: '120 min', price: '₹2,500', checked: false },
                 ].map((srv, idx) => (
-                  <Box key={idx} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, borderRadius: '8px', backgroundColor: '#FAFAFC' }}>
+                  <Box key={idx} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, borderRadius: '8px', backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#FAFAFC' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Checkbox size="small" defaultChecked={srv.checked} />
                       <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>{srv.name}</Typography>
@@ -1258,19 +1307,41 @@ export default function StaffPage() {
               <IconButton onClick={() => setIsAddLeaveOpen(false)} size="small"><X size={18} /></IconButton>
             </DialogTitle>
             <DialogContent dividers sx={{ border: 'none', display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Box><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8 }}>Leave Type *</Typography><Select fullWidth size="small" defaultValue="casual" sx={{ borderRadius: '10px' }}><MenuItem value="casual">Casual Leave</MenuItem><MenuItem value="sick">Sick Leave</MenuItem></Select></Box>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8 }}>Leave Type *</Typography>
+                <Select fullWidth size="small" value={leaveData.type} onChange={(e) => setLeaveData({ ...leaveData, type: e.target.value })} sx={{ borderRadius: '10px' }}>
+                  <MenuItem value="casual">Casual Leave</MenuItem>
+                  <MenuItem value="sick">Sick Leave</MenuItem>
+                </Select>
+              </Box>
               <Grid container spacing={2}>
-                <Grid size={6}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8 }}>Start Date *</Typography><TextField fullWidth size="small" defaultValue="25 Jul 2025" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
-                <Grid size={6}><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8 }}>End Date *</Typography><TextField fullWidth size="small" defaultValue="26 Jul 2025" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Grid>
+                <Grid size={6}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8 }}>Start Date *</Typography>
+                  <TextField type="datetime-local" fullWidth size="small" value={leaveData.startAt} onChange={(e) => setLeaveData({ ...leaveData, startAt: e.target.value })} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} />
+                </Grid>
+                <Grid size={6}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8 }}>End Date *</Typography>
+                  <TextField type="datetime-local" fullWidth size="small" value={leaveData.endAt} onChange={(e) => setLeaveData({ ...leaveData, endAt: e.target.value })} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} />
+                </Grid>
               </Grid>
-              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>Duration: <strong>2 Days</strong></Typography>
-              <Box><Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8 }}>Reason *</Typography><TextField fullWidth size="small" defaultValue="Personal work" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} /></Box>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.8 }}>Reason *</Typography>
+                <TextField fullWidth size="small" value={leaveData.reason} onChange={(e) => setLeaveData({ ...leaveData, reason: e.target.value })} placeholder="E.g., Personal work" sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} />
+              </Box>
             </DialogContent>
             <DialogActions sx={{ p: 2 }}>
               <Button onClick={() => setIsAddLeaveOpen(false)} sx={{ color: '#6B7280', textTransform: 'none', fontWeight: 700 }}>Cancel</Button>
-              <Button variant="contained" onClick={() => setIsAddLeaveOpen(false)} sx={{ backgroundColor: '#7C3AED', textTransform: 'none', fontWeight: 800, borderRadius: '10px', px: 3 }}>Submit Leave</Button>
+              <Button variant="contained" disabled={isSaving} onClick={handleAddLeave} sx={{ backgroundColor: '#7C3AED', textTransform: 'none', fontWeight: 800, borderRadius: '10px', px: 3 }}>
+                {isSaving ? 'Submitting...' : 'Submit Leave'}
+              </Button>
             </DialogActions>
           </Dialog>
+
+          <ResolveConflictsModal 
+            open={isResolveConflictsOpen} 
+            onClose={() => setIsResolveConflictsOpen(false)} 
+            appointments={overlappingAppointments} 
+          />
 
           {/* ========================================================================= */}
           {/* 7. ASSIGN WORKING HOURS & TIMETABLE MODAL */}
@@ -1301,9 +1372,9 @@ export default function StaffPage() {
                         justifyContent: 'space-between',
                         p: 1.5,
                         borderRadius: '12px',
-                        backgroundColor: item.isWorking ? '#FAFAFC' : '#FEF2F2',
+                        backgroundColor: (theme) => item.isWorking ? (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#FAFAFC') : (theme.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.1)' : '#FEF2F2'),
                         border: '1px solid',
-                        borderColor: item.isWorking ? '#E5E7EB' : '#FCA5A5',
+                        borderColor: (theme) => item.isWorking ? (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : '#E5E7EB') : (theme.palette.mode === 'dark' ? 'rgba(239, 68, 68, 0.2)' : '#FCA5A5'),
                       }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 140 }}>
@@ -1316,7 +1387,7 @@ export default function StaffPage() {
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: '#7C3AED' },
                           }}
                         />
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.84rem', color: item.isWorking ? '#111827' : '#DC2626' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.84rem', color: (theme) => item.isWorking ? 'text.primary' : (theme.palette.mode === 'dark' ? '#FCA5A5' : '#DC2626') }}>
                           {item.dayName}
                         </Typography>
                       </Box>
