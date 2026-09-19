@@ -19,7 +19,7 @@ import { ArrowLeft, Clock, Calendar as CalendarIcon, CheckSquare, XCircle, Searc
 import Link from 'next/link';
 import { ROUTES } from '@/config/routes';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import AuthGuard from '@/shared/components/AuthGuard';
+import AuthGuard from '@/shared/components/auth/AuthGuard';
 import { showToast } from '@/shared/components/Toast';
 import { attendanceApiService, AttendanceRecord } from '@/services/api/attendance.service';
 
