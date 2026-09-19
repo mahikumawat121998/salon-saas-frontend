@@ -40,7 +40,7 @@ export function AuthGuard({ children, redirectToLogin = true }: AuthGuardProps) 
   }, [isHydrated, isAuthenticated, user, redirectToLogin, router]);
 
   if (!isHydrated) {
-    return <FullScreenLoader message="Loading SalonOS..." />;
+    return <FullScreenLoader message="Loading SalonNO..." />;
   }
 
   if (!isAuthenticated && redirectToLogin) {

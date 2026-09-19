@@ -3,7 +3,7 @@ import { z } from 'zod';
 const publicEnvSchema = z.object({
   apiUrl: z.string().url().default('http://localhost:3000/api'),
   appUrl: z.string().url().default('http://localhost:3001'),
-  appName: z.string().default('SalonOS'),
+  appName: z.string().default('SalonNO'),
   isDev: z.boolean().default(process.env.NODE_ENV === 'development'),
   isProd: z.boolean().default(process.env.NODE_ENV === 'production'),
 });
@@ -17,7 +17,7 @@ try {
   parsedPublicEnv = publicEnvSchema.parse({
     apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
     appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001',
-    appName: process.env.NEXT_PUBLIC_APP_NAME || 'SalonOS',
+    appName: process.env.NEXT_PUBLIC_APP_NAME || 'SalonNO',
     isDev: process.env.NODE_ENV === 'development',
     isProd: process.env.NODE_ENV === 'production',
   });
@@ -26,7 +26,7 @@ try {
   parsedPublicEnv = {
     apiUrl: 'http://localhost:3000/api',
     appUrl: 'http://localhost:3001',
-    appName: 'SalonOS',
+    appName: 'SalonNO',
     isDev: false,
     isProd: true,
   };

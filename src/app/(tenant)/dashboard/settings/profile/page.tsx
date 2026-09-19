@@ -116,7 +116,7 @@ const SETTINGS_CATEGORIES: SettingCategoryItem[] = [
   {
     id: 'data_import_export',
     title: 'Data Import / Export',
-    description: 'Import data to SalonOS or export your business data.',
+    description: 'Import data to SalonNO or export your business data.',
     icon: ArrowLeftRight,
     iconBg: '#FFF7ED',
     iconColor: '#F97316',

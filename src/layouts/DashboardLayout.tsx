@@ -133,7 +133,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </Box>
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            SalonOS
+            SalonNO
           </Typography>
           <Typography variant="caption" color="text.secondary">
             Management Suite

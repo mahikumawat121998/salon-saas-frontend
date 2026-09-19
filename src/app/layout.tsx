@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SalonOS - Management Suite",
+  title: "SalonNO - Management Suite",
   description: "All-in-one luxury salon management & appointment booking software",
 };
 

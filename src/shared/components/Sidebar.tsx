@@ -89,7 +89,7 @@ export function Sidebar({ onItemClick, items = MAIN_NAVIGATION }: SidebarProps) 
         </Box>
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            SalonOS
+            SalonNO
           </Typography>
           <Typography variant="caption" color="text.secondary">
             Salon Management

@@ -76,7 +76,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
             <Scissors size={28} />
           </Box>
           <Typography variant="h5" color="text.primary" sx={{ fontWeight: 700 }}>
-            {title || 'Welcome to SalonOS'}
+            {title || 'Welcome to SalonNO'}
           </Typography>
           {subtitle && (
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>

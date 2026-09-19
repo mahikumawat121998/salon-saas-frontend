@@ -121,7 +121,7 @@ export function CreateTenantModal({ open, onClose }: CreateTenantModalProps) {
             key: orderInfo.keyId,
             amount: orderInfo.amount,
             currency: orderInfo.currency,
-            name: 'SalonOS',
+            name: 'SalonNO',
             description: `Onboarding: ${name} (${plan.name})`,
             order_id: orderInfo.orderId,
             handler: function (response: any) {

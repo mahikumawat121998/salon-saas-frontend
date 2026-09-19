@@ -252,7 +252,7 @@ function LoginContent() {
           >
             <Image
               src="/images/salon_login_bg.png"
-              alt="SalonOS Interior"
+              alt="SalonNO Interior"
               fill
               sizes="50vw"
               style={{ objectFit: 'cover' }}
@@ -291,7 +291,7 @@ function LoginContent() {
               </Box>
               <Box>
                 <Typography variant="h5" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
-                  SalonOS
+                  SalonNO
                 </Typography>
                 <Typography variant="caption" sx={{ opacity: 0.7, fontSize: '0.75rem' }}>
                   Salon Management System
@@ -485,7 +485,7 @@ function LoginContent() {
                 variant="body2"
                 sx={{ fontSize: '0.9375rem', mb: 2, color: (t) => (t.palette.mode === 'dark' ? '#94A3B8' : '#6B7280') }}
               >
-                Login to access your SalonOS account
+                Login to access your SalonNO account
               </Typography>
 
               {/* Demo Account Quick Selector Pills */}

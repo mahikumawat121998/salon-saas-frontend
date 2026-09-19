@@ -56,7 +56,7 @@ export function FullScreenLoader({ message = 'Loading Salon Suite...' }: FullScr
       </div>
 
       <h6 style={{ margin: 0, fontWeight: 800, fontSize: '1.25rem', color: 'var(--initial-text)', fontFamily: 'var(--font-inter)' }}>
-        SalonOS
+        SalonNO
       </h6>
 
       {message && (

@@ -99,7 +99,7 @@ export function PaymentModal({ open, onClose, invoice, onPaymentSuccess }: Payme
         key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Tb9UmqkZywf37X',
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'SalonOS Management Suite',
+        name: 'SalonNO Management Suite',
         description: `Payment for Invoice #INV-${invoice.id.substring(0, 8).toUpperCase()}`,
         order_id: orderData.orderId,
         prefill: {

@@ -56,7 +56,7 @@ export default function CreatePasswordPage() {
           </Box>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#111827', lineHeight: 1.1 }}>
-              SalonOS
+              SalonNO
             </Typography>
             <Typography variant="caption" sx={{ color: '#6B7280', fontSize: '0.75rem' }}>
               Salon Management System

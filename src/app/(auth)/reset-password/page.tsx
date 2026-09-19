@@ -316,7 +316,7 @@ export default function ResetPasswordPage() {
           </Box>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 800, color: (t) => (t.palette.mode === 'dark' ? '#F8FAFC' : '#111827'), lineHeight: 1.1 }}>
-              SalonOS
+              SalonNO
             </Typography>
             <Typography variant="caption" sx={{ color: (t) => (t.palette.mode === 'dark' ? '#94A3B8' : '#6B7280'), fontSize: '0.75rem' }}>
               Salon Management System
