@@ -56,7 +56,7 @@ export default function AttendanceDashboardPage() {
       headerName: 'Status',
       flex: 0.8,
       renderCell: (params) => {
-        const status = params.row.attendance?.status;
+        const status = params.row.status;
         if (!status) return <Typography variant="body2" color="text.secondary">-</Typography>;
         
         const statusMap: Record<string, any> = {
@@ -76,7 +76,7 @@ export default function AttendanceDashboardPage() {
       headerName: 'Clock In',
       flex: 1,
       renderCell: (params) => {
-        const val = params.row.attendance?.clockIn;
+        const val = params.row.clockIn;
         return val ? format(new Date(val), 'hh:mm a') : '-';
       },
     },
@@ -85,7 +85,7 @@ export default function AttendanceDashboardPage() {
       headerName: 'Clock Out',
       flex: 1,
       renderCell: (params) => {
-        const val = params.row.attendance?.clockOut;
+        const val = params.row.clockOut;
         return val ? format(new Date(val), 'hh:mm a') : '-';
       },
     },
@@ -94,7 +94,7 @@ export default function AttendanceDashboardPage() {
       headerName: 'Working Hours',
       flex: 1,
       renderCell: (params) => {
-        const val = params.row.attendance?.workingHours;
+        const val = params.row.workingHours;
         return val != null ? `${Number(val).toFixed(2)} hrs` : '-';
       },
     },
