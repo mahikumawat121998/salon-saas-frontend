@@ -21,11 +21,11 @@ import { ROUTES } from '@/config/routes';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import AuthGuard from '@/shared/components/auth/AuthGuard';
 import { showToast } from '@/shared/components/Toast';
-import { attendanceApiService, AttendanceRecord } from '@/services/api/attendance.service';
+import { attendanceApiService, StaffAttendance } from '@/services/api/attendance.service';
 
 export default function AttendancePage() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [records, setRecords] = useState<StaffAttendance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -178,22 +178,22 @@ export default function AttendancePage() {
                         </Box>
                       </TableCell>
                       <TableCell>
-                        {getStatusChip(record.attendance?.status)}
+                        {getStatusChip(record.status)}
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatTime(record.attendance?.clockIn)}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatTime(record.clockIn)}</Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatTime(record.attendance?.clockOut)}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatTime(record.clockOut)}</Typography>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {record.attendance?.totalHours ? `${record.attendance.totalHours.toFixed(1)}h` : '--'}
+                          {record.totalHours ? `${record.totalHours.toFixed(1)}h` : '--'}
                         </Typography>
                       </TableCell>
                       <TableCell align="right">
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                          {!record.attendance?.clockIn && record.attendance?.status !== 'ABSENT' && (
+                          {!record.clockIn && record.status !== 'ABSENT' && (
                             <>
                               <Button
                                 size="small"
@@ -214,7 +214,7 @@ export default function AttendancePage() {
                               </Button>
                             </>
                           )}
-                          {record.attendance?.clockIn && !record.attendance?.clockOut && (
+                          {record.clockIn && !record.clockOut && (
                             <Button
                               size="small"
                               variant="contained"
@@ -224,10 +224,10 @@ export default function AttendancePage() {
                               Clock Out
                             </Button>
                           )}
-                          {record.attendance?.clockOut && (
+                          {record.clockOut && (
                             <Chip label="Completed" size="small" variant="outlined" color="success" />
                           )}
-                          {record.attendance?.status === 'ABSENT' && (
+                          {record.status === 'ABSENT' && (
                             <Chip label="Marked Absent" size="small" variant="outlined" color="error" />
                           )}
                         </Box>
