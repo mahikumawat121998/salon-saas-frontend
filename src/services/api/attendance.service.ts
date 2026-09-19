@@ -74,6 +74,16 @@ class AttendanceApiService {
     const res = await axiosClient.post<ApiResponse<StaffAttendance>>(`/staff/${staffId}/attendance/mark-absent`, { date: isoDate, status });
     return res.data.data;
   }
+
+  async startBreak(staffId: string, type: 'LUNCH' | 'SHORT' | 'OTHER' = 'LUNCH'): Promise<any> {
+    const res = await axiosClient.post<ApiResponse<any>>(`/staff/${staffId}/attendance/break/start`, { type });
+    return res.data.data;
+  }
+
+  async endBreak(staffId: string): Promise<any> {
+    const res = await axiosClient.post<ApiResponse<any>>(`/staff/${staffId}/attendance/break/end`);
+    return res.data.data;
+  }
 }
 
 export const attendanceApiService = new AttendanceApiService();
