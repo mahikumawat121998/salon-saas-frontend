@@ -34,25 +34,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
-function GoogleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24">
-      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" />
-      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.29v3.15C3.26 21.3 7.35 24 12 24z" />
-      <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.29c-.82 1.63-1.29 3.47-1.29 5.42s.47 3.79 1.29 5.42l3.99-3.15z" />
-      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.7 1.29 6.58l3.99 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
-    </svg>
-  );
-}
-
-function AppleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.32c.67-.82 1.12-1.96.99-3.1-.96.04-2.13.64-2.81 1.44-.61.71-1.14 1.87-1 2.99 1.07.08 2.16-.51 2.82-1.33z" />
-    </svg>
-  );
-}
-
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -728,65 +709,8 @@ function LoginContent() {
               </Button>
             </Box>
 
-            {/* Social Divider */}
-            <Divider
-              sx={{
-                my: 3,
-                color: (t) => (t.palette.mode === 'dark' ? '#64748B' : '#9CA3AF'),
-                borderColor: (t) => (t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : undefined),
-                fontSize: '0.8125rem',
-              }}
-            >
-              or continue with
-            </Divider>
-
-            {/* Social Login Buttons */}
-            <Box sx={{ display: 'flex', gap: 2, mb: 3.5 }}>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<GoogleIcon />}
-                sx={{
-                  py: 1.1,
-                  borderRadius: '12px',
-                  borderColor: (t) => (t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : '#E5E7EB'),
-                  color: (t) => (t.palette.mode === 'dark' ? '#F8FAFC' : '#374151'),
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  '&:hover': {
-                    borderColor: '#A78BFA',
-                    backgroundColor: (t) => (t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#F9FAFB'),
-                  },
-                }}
-              >
-                Google
-              </Button>
-
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<AppleIcon />}
-                sx={{
-                  py: 1.1,
-                  borderRadius: '12px',
-                  borderColor: (t) => (t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : '#E5E7EB'),
-                  color: (t) => (t.palette.mode === 'dark' ? '#F8FAFC' : '#374151'),
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  '&:hover': {
-                    borderColor: '#A78BFA',
-                    backgroundColor: (t) => (t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#F9FAFB'),
-                  },
-                }}
-              >
-                Apple
-              </Button>
-            </Box>
-
             {/* Sign Up Link */}
-            <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ textAlign: 'center', mt: 3 }}>
               <Typography variant="body2" sx={{ color: (t) => (t.palette.mode === 'dark' ? '#94A3B8' : '#6B7280') }}>
                 Don&apos;t have an account?{' '}
                 <Link
