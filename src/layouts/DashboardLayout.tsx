@@ -8,6 +8,7 @@ import { env } from '@/config/env';
 import { Avatar } from '@/shared/ui/Avatar';
 import { Search } from '@/shared/ui/Search';
 import { useTenantStore } from '@/core/stores/tenant.store';
+import { AiFloatingTrigger } from '@/features/ai-assistant';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -483,6 +484,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         {children}
       </Box>
+
+      <AiFloatingTrigger />
     </Box>
   );
 }
