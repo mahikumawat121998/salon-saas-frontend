@@ -775,10 +775,16 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
                 {task.icon}
               </ListItemIcon>
               <ListItemText
-                primary={task.label}
-                secondary={task.description}
-                primaryTypographyProps={{ fontWeight: 700, fontSize: '0.82rem' }}
-                secondaryTypographyProps={{ fontSize: '0.7rem' }}
+                primary={
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                    {task.label}
+                  </Typography>
+                }
+                secondary={
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem', display: 'block' }}>
+                    {task.description}
+                  </Typography>
+                }
               />
             </MenuItem>
           ))}
