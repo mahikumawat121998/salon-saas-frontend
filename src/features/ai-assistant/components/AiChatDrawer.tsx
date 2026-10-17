@@ -10,6 +10,11 @@ import Avatar from '@mui/material/Avatar';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import Fade from '@mui/material/Fade';
+import Chip from '@mui/material/Chip';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import {
   Sparkles,
   X,
@@ -24,6 +29,7 @@ import {
   Maximize2,
   Minimize2,
   Minus,
+  Zap,
 } from 'lucide-react';
 import { aiApiService, AiMessage, AiConversation } from '@/services/api/ai.service';
 import { AiToolCard } from './AiToolCards';
@@ -42,6 +48,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
   const [conversations, setConversations] = useState<AiConversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | undefined>(undefined);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [taskMenuAnchor, setTaskMenuAnchor] = useState<null | HTMLElement>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -180,11 +187,42 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
     }
   };
 
-  const quickPrompts = [
-    { label: "Today's Revenue", icon: <Banknote size={15} color="#10b981" />, query: "How much revenue did we make today?" },
-    { label: "Today's Appointments", icon: <Calendar size={15} color="#6366f1" />, query: "What are our appointments for today?" },
-    { label: "Staff on Duty", icon: <Users size={15} color="#0ea5e9" />, query: "Who is on duty right now?" },
-    { label: "Catalog & Pricing", icon: <Scissors size={15} color="#f59e0b" />, query: "What services do we offer and at what price?" },
+  const availableTasks = [
+    {
+      label: "Today's Revenue",
+      shortLabel: "Revenue",
+      icon: <Banknote size={14} color="#10b981" />,
+      query: "How much revenue did we make today?",
+      description: "Sales, payment breakdown & tickets",
+    },
+    {
+      label: "Staff on Duty",
+      shortLabel: "Staff Duty",
+      icon: <Users size={14} color="#0ea5e9" />,
+      query: "Who is on duty right now?",
+      description: "Attendance, active stylists & leaves",
+    },
+    {
+      label: "Today's Appointments",
+      shortLabel: "Appointments",
+      icon: <Calendar size={14} color="#6366f1" />,
+      query: "What are our appointments for today?",
+      description: "Upcoming client bookings & schedule",
+    },
+    {
+      label: "Services & Pricing",
+      shortLabel: "Services",
+      icon: <Scissors size={14} color="#f59e0b" />,
+      query: "What services do we offer and at what price?",
+      description: "Browse catalog, duration & rates",
+    },
+    {
+      label: "Book Appointment",
+      shortLabel: "Book Client",
+      icon: <Plus size={14} color="#ec4899" />,
+      query: "I want to book an appointment for a client",
+      description: "Schedule a client with a stylist",
+    },
   ];
 
   return (
@@ -260,7 +298,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
                   }}
                 />
                 <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.72rem', fontWeight: 500 }}>
-                  Gemini 3.5 Flash • Operations
+                  Gemini 3.5 Flash Lite • Operations
                 </Typography>
               </Box>
             </Box>
@@ -298,12 +336,19 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
             display: 'flex',
             flexDirection: 'column',
             gap: 1.8,
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(99, 102, 241, 0.25) transparent',
             '&::-webkit-scrollbar': {
               width: '5px',
             },
             '&::-webkit-scrollbar-thumb': {
-              backgroundColor: 'rgba(99, 102, 241, 0.2)',
+              backgroundColor: 'rgba(99, 102, 241, 0.25)',
               borderRadius: '10px',
+            },
+            '&::-webkit-scrollbar-button': {
+              display: 'none',
+              width: 0,
+              height: 0,
             },
           }}
         >
@@ -340,7 +385,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
 
               {/* Suggestions Grid */}
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, width: '100%', maxWidth: 380 }}>
-                {quickPrompts.map((q, idx) => (
+                {availableTasks.map((q, idx) => (
                   <Box
                     key={idx}
                     onClick={() => handleSendMessage(q.query)}
@@ -508,6 +553,74 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
           <div ref={messagesEndRef} />
         </Box>
 
+        {/* Quick Task Chips Bar (Always visible during active conversation) */}
+        {messages.length > 0 && (
+          <Box
+            sx={{
+              px: 1.8,
+              py: 0.8,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.8,
+              overflowX: 'auto',
+              borderTop: '1px solid',
+              borderColor: (theme) =>
+                theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(99, 102, 241, 0.1)',
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': { display: 'none' },
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: '0.7rem',
+                color: 'text.secondary',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.3,
+                flexShrink: 0,
+                mr: 0.2,
+              }}
+            >
+              <Zap size={12} color="#6366f1" /> Quick:
+            </Typography>
+            {availableTasks.map((task, idx) => (
+              <Chip
+                key={idx}
+                icon={task.icon}
+                label={task.shortLabel}
+                size="small"
+                onClick={() => handleSendMessage(task.query)}
+                disabled={isLoading}
+                sx={{
+                  flexShrink: 0,
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  height: 24,
+                  cursor: 'pointer',
+                  backgroundColor: (theme) =>
+                    theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.85)' : '#ffffff',
+                  border: '1px solid',
+                  borderColor: (theme) =>
+                    theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(99, 102, 241, 0.15)',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+                  transition: 'all 0.15s ease',
+                  '&:hover': {
+                    transform: 'translateY(-1px)',
+                    borderColor: '#6366f1',
+                    boxShadow: '0 2px 6px rgba(99, 102, 241, 0.2)',
+                    backgroundColor: (theme) =>
+                      theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.08)',
+                  },
+                }}
+              />
+            ))}
+          </Box>
+        )}
+
         {/* 3. Floating Bottom Input Bar */}
         <Box
           sx={{
@@ -524,12 +637,12 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: 1,
+              gap: 0.8,
               backgroundColor: (theme) =>
                 theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.8)' : '#f8fafc',
               borderRadius: '20px',
               p: 0.5,
-              px: 1.6,
+              px: 1.2,
               border: '1px solid',
               borderColor: (theme) =>
                 theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(99, 102, 241, 0.15)',
@@ -540,6 +653,27 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
               },
             }}
           >
+            {/* Quick Task Menu Picker Button */}
+            <Tooltip title="Pick a Quick Task">
+              <IconButton
+                size="small"
+                onClick={(e) => setTaskMenuAnchor(e.currentTarget)}
+                sx={{
+                  p: 0.7,
+                  color: Boolean(taskMenuAnchor) ? '#6366f1' : 'text.secondary',
+                  backgroundColor: Boolean(taskMenuAnchor)
+                    ? 'rgba(99, 102, 241, 0.12)'
+                    : 'transparent',
+                  '&:hover': {
+                    color: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                  },
+                }}
+              >
+                <Zap size={16} />
+              </IconButton>
+            </Tooltip>
+
             <InputBase
               fullWidth
               placeholder="Ask about revenue, staff, or appointments..."
@@ -571,6 +705,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
               <Send size={15} />
             </IconButton>
           </Box>
+
           <Typography
             variant="caption"
             sx={{
@@ -585,6 +720,69 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ open, onClose }) => 
             Salon Copilot • Multi-tenant intelligence powered by Gemini
           </Typography>
         </Box>
+
+        {/* Floating Quick Tasks Menu */}
+        <Menu
+          anchorEl={taskMenuAnchor}
+          open={Boolean(taskMenuAnchor)}
+          onClose={() => setTaskMenuAnchor(null)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          slotProps={{
+            paper: {
+              elevation: 16,
+              sx: {
+                mb: 1.2,
+                borderRadius: '16px',
+                minWidth: 270,
+                border: '1px solid',
+                borderColor: (theme) =>
+                  theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(99, 102, 241, 0.15)',
+                background: (theme) =>
+                  theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.96)' : 'rgba(255, 255, 255, 0.98)',
+                backdropFilter: 'blur(20px)',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.25)',
+              },
+            },
+          }}
+        >
+          <Box sx={{ px: 2, py: 1.2, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.84rem' }}>
+              Select a Task
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.72rem' }}>
+              Run instantly in current conversation
+            </Typography>
+          </Box>
+          {availableTasks.map((task, idx) => (
+            <MenuItem
+              key={idx}
+              onClick={() => {
+                setTaskMenuAnchor(null);
+                handleSendMessage(task.query);
+              }}
+              sx={{
+                py: 1.2,
+                px: 2,
+                gap: 1.4,
+                '&:hover': {
+                  backgroundColor: (theme) =>
+                    theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.14)' : 'rgba(99, 102, 241, 0.07)',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 'auto', p: 0.6, borderRadius: '8px', backgroundColor: 'rgba(99, 102, 241, 0.08)' }}>
+                {task.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={task.label}
+                secondary={task.description}
+                primaryTypographyProps={{ fontWeight: 700, fontSize: '0.82rem' }}
+                secondaryTypographyProps={{ fontSize: '0.7rem' }}
+              />
+            </MenuItem>
+          ))}
+        </Menu>
       </Paper>
     </Fade>
   );
